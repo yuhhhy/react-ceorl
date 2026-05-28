@@ -1,27 +1,27 @@
 # CEORL — Ceorl Rolling Layout
 
-**Composable Ergonomic Ordered Rolling Layouts**
+**Composable Ergonomic Ordered Rolling Layouts** · 希儿滚动平铺
 
-React horizontal-scrolling tiling layout component library. Inspired by [niri](https://github.com/YaLTeR/niri) (scrollable-tiling Wayland compositor).
+React 横向滚动平铺窗口布局组件库。灵感来自 [niri](https://github.com/YaLTeR/niri)（scrollable-tiling Wayland compositor）。
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│ [ Panel A 1/2 ][ Panel B 1/3 ][ Panel C 1/4 ][ Panel D ] → │
+│ [ 面板 A 1/2 ][ 面板 B 1/3 ][ 面板 C 1/4 ][ 面板 D ] → 滚 │
 └──────────────────────────────────────────────────────────────┘
 ```
 
-## Features
+## 特性
 
-- **Horizontal tiling** — Panels arranged as columns, scroll horizontally
-- **CSS snap-to-column** — Scroll snaps to column boundaries, no intermediate positions
-- **Variable column widths** — 1/2, 1/3, 1/4 viewport/shell width per column
-- **Vertical stacking** — Split a column vertically into sub-panels via `CeorlStack`
-- **Controlled / uncontrolled** — Full React state management: `activeIndex`, `onIndexChange`
-- **Focus navigation** — `focusColumn(index)` with minimal scroll; only moves viewport if column is not visible
-- **Focus highlight** — Active column gets `outline` highlight, customizable via `--ceorl-focus-color`
-- **Zero layout dependencies** — Pure CSS (`scroll-snap`) + React
+- **横向平铺** — 面板按列排列，横向滚动切换
+- **CSS 吸附** — 滚动自动吸附到列边界，无中间拖尾
+- **可变列宽** — 每列支持 1/2、1/3、1/4 宽度比例
+- **列内堆叠** — 同一列可纵向分割多个子面板 (`CeorlStack`)
+- **受控/非受控** — 完整 React 状态管理：`activeIndex`、`onIndexChange`
+- **焦点导航** — `focusColumn(index)` 以最小滚动将列带入视口，已在视口内则不动
+- **焦点高亮** — 当前激活列显示 `outline` 高亮，通过 `--ceorl-focus-color` 自定义
+- **零布局依赖** — 纯 CSS（`scroll-snap`）+ React，不依赖第三方布局库
 
-## Quick Start
+## 快速开始
 
 ```tsx
 import { CeorlShell, CeorlColumn, CeorlStack } from 'ceorl'
@@ -31,110 +31,130 @@ function App() {
   return (
     <CeorlShell>
       <CeorlColumn width="1/2">
-        <h2>Panel A</h2>
-        <p>½ width column</p>
+        <h2>面板 A</h2>
+        <p>½ 宽度列</p>
       </CeorlColumn>
       <CeorlColumn width="1/3">
         <CeorlStack>
-          <div>Sub-panel 1</div>
-          <div>Sub-panel 2</div>
+          <div>子面板 1</div>
+          <div>子面板 2</div>
         </CeorlStack>
       </CeorlColumn>
       <CeorlColumn width="1/4">
-        <p>¼ width column</p>
+        <p>¼ 宽度列</p>
       </CeorlColumn>
     </CeorlShell>
   )
 }
 ```
 
-## Components
+## 组件
 
 ### CeorlShell
 
-Top-level horizontal scroll-snap container.
+顶层横向滚动吸附容器。
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `activeIndex` | `number` | — | Controlled active column index |
-| `defaultActiveIndex` | `number` | `0` | Initial active index (uncontrolled) |
-| `onIndexChange` | `(index: number) => void` | — | Called when active column changes |
-| `columns` | `ColumnDescriptor[]` | — | Declarative column array |
-| `enableKeyboardNav` | `boolean` | `false` | Enable ←/→ arrow key navigation |
+| Prop | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `activeIndex` | `number` | — | 受控模式：当前激活列索引 |
+| `defaultActiveIndex` | `number` | `0` | 非受控模式：初始激活列索引 |
+| `onIndexChange` | `(index: number) => void` | — | 激活列变化时回调 |
+| `columns` | `ColumnDescriptor[]` | — | 声明式列数组（与 children 互斥） |
+| `enableKeyboardNav` | `boolean` | `false` | 启用 ←/→ 方向键导航 |
 
-**Imperative handle** (`ref.current`):
+**命令式接口** (`ref.current`)：
 
-| Method | Description |
-|--------|-------------|
-| `focusColumn(index)` | Focus column with minimal scroll (no-op if already visible) |
-| `getColumns()` | Returns column DOM elements |
+| 方法 | 说明 |
+|------|------|
+| `focusColumn(index)` | 最小滚动聚焦到目标列，已在视口内则无操作 |
+| `getColumns()` | 返回所有列的 DOM 元素数组 |
 
 ### CeorlColumn
 
-Single column container.
+单列容器。
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `width` | `'1/2' \| '1/3' \| '1/4'` | `'1/3'` | Column width ratio |
-| `padding` | `string` | — | CSS padding value for inner content |
+| Prop | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `width` | `'1/2' \| '1/3' \| '1/4'` | `'1/3'` | 列宽度比例 |
+| `padding` | `string` | — | 列内边距，CSS padding 值 |
 
 ### CeorlStack
 
-Vertical stacking container inside a column. Children auto-share height.
+列内纵向堆叠容器。子元素自动等分高度。
 
 ### ColumnDescriptor
 
 ```ts
 interface ColumnDescriptor {
   id: string
-  width?: ColumnWidth
+  width?: '1/2' | '1/3' | '1/4'
   content: ReactNode
 }
 ```
 
 ## Hooks
 
-| Hook | Description |
-|------|-------------|
-| `useScrollSnap(ref, options?)` | Pure observer: detects scroll-settle events, reports index + sequence number |
-| `useKeyboardNav(ref, enabled?, onNavigate?)` | Binds left/right arrow keys for navigation |
+| Hook | 说明 |
+|------|------|
+| `useScrollSnap(ref, options?)` | 纯观察者：检测滚动吸附事件，通过 `onScrollSettle(index, seq)` 回调报告 |
+| `useKeyboardNav(ref, enabled?, onNavigate?)` | 绑定 ←/→ 方向键，支持自定义导航回调 |
 
-## Customization
+## 定制
 
-### Focus Highlight
+### 焦点高亮颜色
 
 ```css
-/* Change highlight color */
+/* 改颜色 */
 .ceorl-column { --ceorl-focus-color: #ff6b35; }
 
-/* Or override entirely */
+/* 完全覆盖 */
 .ceorl-column[data-active="true"] {
   outline: 3px dashed #00ff88;
   outline-offset: -3px;
 }
 ```
 
-### Shell Dimensions
+### Shell 尺寸
 
 ```tsx
-{/* Full viewport (default) */}
+{/* 默认占满视口 */}
 <CeorlShell>...</CeorlShell>
 
-{/* Embedded with toolbar */}
+{/* 嵌入带工具栏的页面 */}
 <CeorlShell style={{ height: 'calc(100vh - 48px)', width: '100%' }}>
   ...
 </CeorlShell>
 ```
 
-## Dev
+### 动态列管理
+
+```tsx
+const [columns, setColumns] = useState<ColumnDescriptor[]>([...])
+
+<CeorlShell
+  columns={columns}
+  activeIndex={idx}
+  onIndexChange={setIdx}
+/>
+```
+
+### 键盘导航
+
+```tsx
+<CeorlShell enableKeyboardNav={true}>
+  ...
+</CeorlShell>
+```
+
+## 开发
 
 ```bash
 pnpm install
-pnpm dev       # Start dev server
-pnpm test      # Run tests (43 tests)
-pnpm typecheck # Type check
-pnpm lint      # Lint
-pnpm build     # Production build
+pnpm dev        # 启动开发服务器
+pnpm test       # 运行测试（43 个）
+pnpm typecheck  # 类型检查
+pnpm lint       # 代码检查
+pnpm build      # 生产构建
 ```
 
 ## License
