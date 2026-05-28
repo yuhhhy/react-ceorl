@@ -1,126 +1,219 @@
-# CEORL 滚动与焦点
+# CEORL 定位与设计
 
-## 定位约束
+## 一句话
 
-CEORL 是「**滚动平铺布局**」组件库，不是通用滚动容器。所有滚动操作都以列为单位——起点是某列边界，终点也是某列边界。不存在用户停在两列之间的场景。
+**一个带列对齐滚动能力的 flexbox 布局渲染器。**
 
-由此推导：
-
-- 不需要检测「滚动停在了哪一列」——终点已知
-- 不需要 L/R 双面吸附——终点已知
-- 不需要防抖、seq 计数器、scrollend 去重——终点已知
-- 不需要自定义滚动引擎——`scrollTo` 就够了
-- 不需要隐藏滚动条——但保留，不作为功能入口
+布局和滚动由库提供，策略和交互由消费者决定。
 
 ---
 
-## 当前的滚动场景
+## 库的不可替代性
 
-| 触发 | 目标 | 是否离散 |
-|------|------|---------|
-| Prev/Next 按钮 | 前/后一列 | ✅ 离散 |
-| 方向键 | 前/后一列 | ✅ 离散 |
-| `focusColumn(index)` | 指定列 | ✅ 离散 |
-| 鼠标拖滚动条 | 任意位置 | ❌ 连续 |
-| 触摸板左右轻扫 | 浏览器解释 | ❌ 浏览器定义 |
+CEORL 只做两件消费者自己写起来很麻烦的事：
 
-鼠标拖滚动条是唯一的不受控路径，但在仪表盘类场景中没有实际需求——用户不会停在列 1.7 的位置。不需要为此引入复杂的滚动检测。
+1. **列渲染** — 把 `ColumnDescriptor[]` 渲染成带宽度档位（`1/2`、`1/3`、`1/4`）的 flex 列
+2. **列对齐** — `scrollToColumn(container, index)` 用 L/R 最小移动算法把指定列完全滚进视口
+
+其他都是消费者的事。
 
 ---
 
-## 核心设计
+## 消费者自己的事
 
-### `focusColumn(index)`
+| 功能 | 消费者负责 | 示例代码 |
+|------|-----------|---------|
+| 键盘绑定 | 自己写 `useEffect` | `el.addEventListener('keydown', handler)` |
+| 焦点管理 | 自己调 `scrollElement.focus()` | `handle?.scrollElement?.focus()` |
+| 点击列切换 | 自己写点击 handler | `onClick={() => setIdx(i)}` |
+| 动画类型 | 传入 `behavior` 参数 | `scrollTo(i, { behavior: 'instant' })` |
+| 越界检查 | 自己判断边界 | `if (idx > 0) scrollTo(idx - 1)` |
+| 当前激活列 | 自己维护 state | `activeIndex={idx}` |
+| 滚动停稳后做某事 | 自己 `setTimeout` 或 `scrollend` | `el.onscrollend = ...` |
+| 基础键盘豁免 | 自己加 `closest` 判断 | `if (target.closest('input')) return` |
 
-```ts
-focusColumn(index):
-  scrollTo({ left: targetCol.offsetLeft, behavior: 'smooth' })
-  container.focus()
-```
+库不兜底任何一种策略——每家应用不一样，兜了也是错的一半。
 
-两件事合并为一个原子操作：
-1. 滚动到目标列
-2. 焦点收回 Shell —— 后续方向键事件通过 DOM 冒泡自然到达 handler
+---
 
-任何调用 `focusColumn` 的地方都不需要额外关心焦点。
-
-### 键盘导航
-
-消费者在 `scrollElement` 上绑定 `keydown`：
+## 公开 API
 
 ```tsx
-useEffect(() => {
-  const el = ref.current?.scrollElement
-  if (!el) return
-  const handler = (e: KeyboardEvent) => {
-    if ((e.target as HTMLElement).closest('input,textarea,select,[contenteditable]')) return
-    if (e.key === 'ArrowLeft')  ref.current?.focusColumn(index - 1)
-    if (e.key === 'ArrowRight') ref.current?.focusColumn(index + 1)
-  }
-  el.addEventListener('keydown', handler)
-  return () => el.removeEventListener('keydown', handler)
-}, [index])
-```
+// 组件
+<CeorlShell
+  ref={shellRef}
+  columns={cols}                    // 列描述数组（必需）
+  activeIndex={idx}                 // 受控激活列索引
+/>
 
-Shell 不自带键盘策略——交由消费者决定。
+<CeorlColumn width="1/3"> ... </CeorlColumn>
+<CeorlStack> ... </CeorlStack>
 
-### 焦点行为
+// Handle — 只提供工具，不执行策略
+interface CeorlShellHandle {
+  scrollTo: (index: number, opts?: { behavior?: ScrollBehavior }) => void
+  scrollElement: HTMLDivElement | null   // 滚动容器 DOM 引用
+}
 
-```
-用户点击 Prev 按钮
-  → App 调用 focusColumn(prevIndex)
-    → scrollTo 到达
-    → container.focus() —— 焦点回 Shell
-
-用户方向键
-  → 焦点在 Shell 内 → 事件冒泡到 keydown handler → focusColumn
-  → 焦点不在 Shell 内 → 事件不到达 → 浏览器默认（无操作，正确）
-
-用户点击 Shell 外其他区域
-  → 焦点离开 → 方向键不再作用
-  → 下次 focusColumn / 按钮点击 → 焦点自动回来
+// 独立函数 — 不用 ref 也能用
+scrollToColumn(container: HTMLDivElement | null, index: number, opts?: { behavior?: ScrollBehavior }): void
 ```
 
 ---
 
-## 简化清单
+## 核心算法：L/R 双面吸附
 
-如果按此设计合并到 main，可以移除的模块：
+```ts
+function scrollToColumn(
+  container: HTMLDivElement | null,
+  index: number,
+  opts?: { behavior?: ScrollBehavior },
+) {
+  if (!container) return
+  const cols = container.querySelectorAll<HTMLElement>('.ceorl-column')
+  if (index < 0 || index >= cols.length) return
 
-| 模块 | 理由 |
-|------|------|
-| `useScrollSettle` | 不再需要检测滚动停止位置 |
-| `focusSeqRef` | 不再需要「丢弃过时 settle 回调」 |
-| L/R 双面吸附算法 | `scrollTo({ left: col.offsetLeft })` 就够了 |
-| `scrollend` 事件监听及去重 | 没有 settle 需要检测 |
-| 300ms 防抖 fallback | 同上 |
+  const col = cols[index]
+  const viewLeft = container.scrollLeft
+  const viewRight = viewLeft + container.clientWidth
+  const colLeft = col.offsetLeft
+  const colRight = colLeft + col.offsetWidth
 
-保留的：
+  // 已经在视口内，不滚
+  if (colLeft >= viewLeft && colRight <= viewRight) return
 
-| 模块 | 理由 |
-|------|------|
-| `scrollElement` getter | 消费者挂键盘事件需要 |
-| `getColumns` | 消费者查询 DOM |
-| `overflow-x: auto` | 列超出壳宽时自然溢出，不拦截 |
-| `scrollbar-width: none` | 可选，单纯视觉整洁 |
-| 隐藏滚动条 | 保留，不作为功能入口 |
+  // L = 右吸附面（列右边缘对齐视口右边缘）
+  // R = 左吸附面（列左边缘对齐视口左边缘）
+  // 选离当前位置更近的面 → 最小移动
+  const L = Math.max(0, colRight - container.clientWidth)
+  const R = colLeft
 
-`useScrollSettle` 的测试（8 个）也可以一并清理。
+  const target = abs(container.scrollLeft - L) <= abs(container.scrollLeft - R) ? L : R
+
+  container.scrollTo({ left: target, ...opts })
+}
+```
+
+不是策略——是纯数学计算。没有状态、没有事件、没有副作用。
 
 ---
 
-## 公开 API 变更
+## 消费者的典型代码
 
-无。`focusColumn` 的签名不变，`CeorlShellProps` 不变，`CeorlShellHandle` 不变。
+```tsx
+import { useRef, useState, useEffect, useCallback } from 'react'
+import { CeorlShell } from 'ceorl'
+import type { CeorlShellHandle } from 'ceorl'
 
-唯一内部改动是 `focusColumn` 加了 `container.focus()`。消费者端代码不需要改动。
+export default function Dashboard() {
+  const ref = useRef<CeorlShellHandle>(null)
+  const [idx, setIdx] = useState(0)
+  const [columns] = useState([...])  // 列描述数组
+
+  // 键盘绑定 — 自己策略
+  useEffect(() => {
+    const el = ref.current?.scrollElement
+    if (!el) return
+
+    const handler = (e: KeyboardEvent) => {
+      if ((e.target as HTMLElement).closest('input,textarea,select,[contenteditable]')) return
+      if (e.key === 'ArrowLeft' && idx > 0)        setIdx(idx - 1)
+      if (e.key === 'ArrowRight' && idx < columns.length - 1) setIdx(idx + 1)
+    }
+    el.addEventListener('keydown', handler)
+    return () => el.removeEventListener('keydown', handler)
+  }, [idx])
+
+  // activeIndex 变化 → 滚动 + 焦点
+  useEffect(() => {
+    ref.current?.scrollTo(idx)
+    ref.current?.scrollElement?.focus()
+  }, [idx])
+
+  return (
+    <CeorlShell ref={ref} columns={columns} activeIndex={idx} />
+  )
+}
+```
+
+`scrollTo` 和 `scrollElement` 以工具形式提供，不给语义绑定的「服务」。
 
 ---
 
-## 实施
+## 与之前版本的对比
 
-1. `Shell.tsx`: `focusColumn` 尾部加 `container.focus()`
-2. `Shell.tsx`: 删除 `useScrollSettle` 调用及相关状态
-3. 删除 `src/hooks/useScrollSettle.ts` 及其测试文件
-4. 更新 README 中 `pnpm test` 的数字
-5. 此文作为设计记录，归入 `docs/`
+| 版本 | CeorlShellHandle | 内部状态 | 焦点管理 | 消费者负担 |
+|------|-----------------|---------|---------|-----------|
+| main | `focusColumn`, `getColumns`, `scrollElement` | `useScrollSettle`, `focusSeqRef`, `activeIndex` | 无（消费者自己 `useEffect` 配 `document`） | 中 |
+| PR #2 | + `scrollElement` getter | 同上 | 同上 | 中 |
+| 本设计 | `scrollTo`, `scrollElement` | 无 | 消费者 `useEffect` 配容器级 | 中+（但无隐性契约） |
+
+消费者负担没有显著增加——之前也不用管焦点，而是根本管不了（浏览器焦点在 Shell 外就不工作）。现在是「你管，你一定能管好」。
+
+---
+
+## 删除清单
+
+```
+src/hooks/useScrollSettle.ts        — 不再需要
+src/hooks/useScrollSettle.test.ts   — 同上
+src/components/Shell.tsx
+  ├─ useScrollSettle 调用
+  ├─ focusSeqRef
+  ├─ handleScrollSettle
+  ├─ updateIndex / isControlled
+  ├─ useState<internalIndex>
+  └─ columns mode 的 data-active 赋值（由 CeorlShell 自己管理）
+src/components/types.ts
+  ├─ CeorlShellProps.onIndexChange
+  ├─ CeorlShellProps.defaultActiveIndex
+  └─ CeorlShellHandle.getColumns
+```
+
+保留：
+
+```
+src/components/Shell.tsx
+  ├─ doFocus → scrollTo (rename)
+  ├─ L/R 吸附算法
+  └─ useImperativeHandle → { scrollTo, scrollElement }
+src/components/types.ts
+  ├─ CeorlShellProps.activeIndex（受控）
+  ├─ CeorlShellHandle.scrollTo
+  └─ CeorlShellHandle.scrollElement
+```
+
+---
+
+## 未来方向
+
+### 消费者辅助函数（可选，不影响核心 API）
+
+当前消费者需要自己写键盘绑定、焦点管理、点击切换——约 30-40 行样板代码。未来可以提供纯工具函数，由消费者显式调用，不自动挂载：
+
+```tsx
+// 消费者选择引入
+useCeorlKeyboardNav(ref, { onPrev: () => setIdx(i-1), onNext: () => setIdx(i+1) })
+useCeorlAutoFocus(ref, { when: 'after-scroll' })
+```
+
+重点是**不自动执行**——消费者调用才是执行，不调就没有。这些辅助函数不属于 `CeorlShell` 的内部逻辑，不增加库的隐性契约。
+
+### 方案 B 评估（滚动输入接管）
+
+当前设计不拦截任何滚动行为，只提供 `scrollTo`。如果未来需要 niri 级的滚动体验（方向键无缝、自定义惯性），需要评估方案 B：
+
+- `overflow: hidden` + wheel handler 接管滚轮
+- macOS 触控板惯性在 wheel 事件中的表现
+- 是否需要引入物理引擎
+
+方案 B 的触发条件：确认 wheel 事件在主流浏览器（Chrome/Firefox/Safari）上都能拿到 delta 值，且触控板惯性不产生不可接受的跳变。当前无此需求，搁置。
+
+---
+
+## 核心设计原则
+
+1. **库不做策略判断** — 不决定焦点在哪、不绑定键盘、不检测滚动结束
+2. **库提供算力** — L/R 双面吸附是纯数学，没有副作用和状态
+3. **消费者全权** — 所有交互行为由消费者在自己代码中编排，可读、可改、可测
+4. **极简工具接口** — handle 只给两个东西：一个算滚动位置的函数、一个容器 DOM 引用
