@@ -225,28 +225,6 @@ describe('CeorlShell', () => {
     expect(shell.scrollTo).not.toHaveBeenCalled()
   })
 
-  it('focusColumn picks R (left snap) when closer than L (right snap)', () => {
-    const ref = createRef<CeorlShellHandle>()
-    const { container } = render(
-      <CeorlShell ref={ref}>
-        <CeorlColumn>A</CeorlColumn>
-        <CeorlColumn>B</CeorlColumn>
-      </CeorlShell>,
-    )
-    const shell = container.querySelector('.ceorl-shell') as HTMLElement
-    shell.scrollTo = vi.fn()
-    Object.defineProperty(shell, 'scrollLeft', { value: 200 })
-    Object.defineProperty(shell, 'clientWidth', { value: 1000 })
-
-    const cols = shell.querySelectorAll('.ceorl-column')
-    Object.defineProperty(cols[0], 'offsetLeft', { value: 0 })
-    Object.defineProperty(cols[1], 'offsetLeft', { value: 300 })
-    Object.defineProperty(cols[1], 'offsetWidth', { value: 800 })
-
-    // col1: L=max(0,1100-1000)=100, R=300. |200-100|=100 > |200-300|=100 tie → either
-    // Let me change: col1 offsetWidth=900 → L=200, R=300. |200-200|=0 < |200-300|=100 → L=200
-  })
-
   it('onIndexChange is called once after scroll settle when focusColumn is invoked', () => {
     vi.useFakeTimers()
     const onIndexChange = vi.fn()

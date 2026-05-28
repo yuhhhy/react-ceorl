@@ -66,25 +66,6 @@ Tests for useScrollSnap SHALL verify: event listener registration/cleanup, activ
 - **WHEN** a component using useScrollSnap unmounts
 - **THEN** the scroll event listener SHALL be removed
 
-### Requirement: useKeyboardNav hook tests exist
-Tests for useKeyboardNav SHALL verify: ArrowLeft/ArrowRight triggers scroll, disabled state suppresses events, onNavigate callback fires, and event listener cleanup.
-
-#### Scenario: ArrowRight scrolls right
-- **WHEN** ArrowRight key is pressed while hook is active
-- **THEN** `scrollBy` SHALL be called with a positive `left` delta
-
-#### Scenario: ArrowLeft scrolls left
-- **WHEN** ArrowLeft key is pressed while hook is active
-- **THEN** `scrollBy` SHALL be called with a negative `left` delta
-
-#### Scenario: Disabled suppresses key events
-- **WHEN** hook is initialized with `enabled=false` and ArrowRight is pressed
-- **THEN** `scrollBy` SHALL NOT be called
-
-#### Scenario: Non-arrow keys are ignored
-- **WHEN** a key other than ArrowLeft/ArrowRight is pressed
-- **THEN** no scroll action SHALL occur
-
 ### Requirement: Testing libraries are installed as dev dependencies
 The project SHALL include `vitest`, `@testing-library/react`, `@testing-library/jest-dom`, and `jsdom` as devDependencies.
 
@@ -93,7 +74,7 @@ The project SHALL include `vitest`, `@testing-library/react`, `@testing-library/
 - **THEN** vitest, @testing-library/react, @testing-library/jest-dom, and jsdom SHALL be installed and importable
 
 ### Requirement: scrollend dedup regression test exists
-The `useScrollSnap` test suite SHALL include a test that verifies `onScrollSettle` is called exactly once per scroll gesture on scrollend-supporting test environments.
+The `useScrollSettle` test suite SHALL include a test that verifies `onScrollSettle` is called exactly once per scroll gesture on scrollend-supporting test environments.
 
 #### Scenario: Single onScrollSettle call on scroll settle
 - **WHEN** a scroll gesture completes in a test environment that fires `scrollend`
@@ -119,11 +100,4 @@ The `CeorlShell` test suite SHALL include a test that verifies `defaultActiveInd
 #### Scenario: Second column is active with defaultActiveIndex={1}
 - **WHEN** `CeorlShell` is rendered with `defaultActiveIndex={1}` and three children columns
 - **THEN** the second column SHALL have `data-active="true"` and the first SHALL NOT
-
-### Requirement: Keyboard nav calls scrollBy after onNavigate
-The `useKeyboardNav` test suite SHALL include a test that verifies `scrollBy` is called even when an `onNavigate` callback is provided.
-
-#### Scenario: scrollBy called after onNavigate
-- **WHEN** `useKeyboardNav` is used with an `onNavigate` callback and ArrowRight is pressed
-- **THEN** `scrollBy` SHALL be called with positive `left` delta after `onNavigate` is invoked
 

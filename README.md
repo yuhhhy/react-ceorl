@@ -155,7 +155,7 @@ useEffect(() => {
 ```bash
 pnpm install
 pnpm dev        # 启动开发服务器
-pnpm test       # 运行测试（38 个）
+pnpm test       # 运行测试（37 个）
 pnpm typecheck  # 类型检查
 pnpm lint       # 代码检查
 pnpm build      # 生产构建
