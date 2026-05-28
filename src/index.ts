@@ -3,4 +3,4 @@
 export { CeorlShell, CeorlColumn, CeorlStack } from './components'
 export type { CeorlShellProps, CeorlColumnProps, CeorlStackProps, ColumnWidth, ColumnDescriptor, CeorlShellHandle } from './components'
 
-export { useScrollSettle } from './hooks/useScrollSettle'
+export { scrollToColumn } from './scrollToColumn'

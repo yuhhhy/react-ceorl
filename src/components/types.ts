@@ -10,16 +10,13 @@ export interface ColumnDescriptor {
 }
 
 export interface CeorlShellHandle {
-  focusColumn: (index: number) => void
-  getColumns: () => HTMLDivElement[]
+  scrollTo: (index: number) => void
   scrollElement: HTMLDivElement | null
 }
 
 export interface CeorlShellProps {
   children?: ReactNode
   activeIndex?: number
-  defaultActiveIndex?: number
-  onIndexChange?: (index: number) => void
   columns?: readonly ColumnDescriptor[]
 }
 

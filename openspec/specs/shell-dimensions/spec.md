@@ -4,11 +4,11 @@
 TBD - created by archiving change shell-dimension-api. Update Purpose after archive.
 ## Requirements
 ### Requirement: Shell defaults to full viewport dimensions
-CeorlShell SHALL render with `width: 100vw` and `height: 100vh` by default. The shell SHALL NOT force these dimensions via CSS — they SHALL be applied as inline styles.
+CeorlShell SHALL render with `width: 100vw` and `height: 100vh` by default via inline styles.
 
 #### Scenario: Shell fills viewport by default
 - **WHEN** CeorlShell is rendered without explicit `style.width` or `style.height`
-- **THEN** the rendered div SHALL have `style="width: 100vw; height: 100vh"` (alongside any other inline styles)
+- **THEN** the rendered div SHALL have `style="width: 100vw; height: 100vh"`
 
 ### Requirement: Shell dimensions are overridable via style prop
 CeorlShell SHALL accept the standard `style` prop (from `HTMLAttributes<HTMLDivElement>`). Consumer-supplied `style.width` and `style.height` overrides the defaults.
@@ -22,11 +22,11 @@ CeorlShell SHALL accept the standard `style` prop (from `HTMLAttributes<HTMLDivE
 - **THEN** the rendered div SHALL have `width: 800px` and the default `100vw` SHALL NOT apply
 
 ### Requirement: No height: 100vh in CSS
-The `.ceorl-shell` CSS rule SHALL NOT include `height`, `scroll-snap-type`, `scroll-snap-align`, or `scroll-behavior`. Dimensions SHALL be controlled exclusively via inline styles. Scroll behavior SHALL be controlled per-action via `scrollTo({ behavior })`.
+The `.ceorl-shell` CSS rule SHALL use `overflow: hidden`. The rule SHALL NOT include `height`, `overflow-x`, `overflow-y`, `scroll-snap-type`, `scroll-snap-align`, `scroll-behavior`, `scrollbar-width`, or `::-webkit-scrollbar`. All scroll movement SHALL be driven programmatically by `scrollTo({ left, behavior })`.
 
-#### Scenario: CSS does not set scroll-snap or scroll-behavior
+#### Scenario: CSS uses overflow hidden only
 - **WHEN** inspecting the `.ceorl-shell` CSS rules
-- **THEN** no `scroll-snap-type`, `scroll-behavior`, or `height` SHALL be specified
+- **THEN** only `display: flex` and `overflow: hidden` SHALL be specified
 
 ### Requirement: Column widths are percentage-based relative to shell
 The `WIDTH_MAP` constant SHALL map column width ratios to percentage strings relative to the shell container, not viewport units.

@@ -3,54 +3,6 @@
 ## Purpose
 TBD - created by archiving change phase-1-core-enhancements. Update Purpose after archive.
 ## Requirements
-### Requirement: CeorlShell supports uncontrolled active index
-CeorlShell SHALL accept a `defaultActiveIndex` prop to set the initial active column index. When only `defaultActiveIndex` is provided (no `activeIndex`), the shell MUST manage active-index state internally. The first column SHALL be index 0.
-
-#### Scenario: Default active index starts at first column
-- **WHEN** CeorlShell is rendered with `<CeorlShell><CeorlColumn /><CeorlColumn /></CeorlShell>` and no `activeIndex` or `defaultActiveIndex` prop
-- **THEN** the active index SHALL be 0
-
-#### Scenario: Uncontrolled mode with explicit defaultActiveIndex
-- **WHEN** CeorlShell is rendered with `defaultActiveIndex={1}` and three children columns
-- **THEN** the active index SHALL be 1
-
-### Requirement: CeorlShell supports controlled active index
-CeorlShell SHALL accept an `activeIndex` prop. When `activeIndex` is provided, the shell MUST operate in controlled mode — the active column is determined solely by the prop value, not by internal state. The shell MUST NOT update activeIndex internally in controlled mode.
-
-#### Scenario: Controlled mode overrides internal state
-- **WHEN** CeorlShell is rendered with `activeIndex={2}` and three children columns
-- **THEN** the active index SHALL be 2 regardless of scroll position
-
-#### Scenario: Controlled mode ignores defaultActiveIndex
-- **WHEN** CeorlShell is rendered with both `activeIndex={1}` and `defaultActiveIndex={0}`
-- **THEN** the active index SHALL be 1 (controlled takes precedence)
-
-### Requirement: CeorlShell fires onIndexChange callback
-CeorlShell SHALL accept an `onIndexChange` callback prop. The callback MUST be invoked with the new active column index whenever the active column changes due to scroll-snap settling or programmatic navigation. The callback SHALL NOT be invoked in controlled mode (parent manages state).
-
-#### Scenario: Scroll snap triggers onIndexChange
-- **WHEN** user scrolls the shell such that a different column snaps to view, in uncontrolled mode with `onIndexChange` provided
-- **THEN** `onIndexChange` SHALL be called with the new column index
-
-#### Scenario: Keyboard navigation triggers onIndexChange
-- **WHEN** user presses ArrowRight key while shell has keyboard navigation enabled and `onIndexChange` provided
-- **THEN** `onIndexChange` SHALL be called with the next column index
-
-#### Scenario: Controlled mode does not trigger onIndexChange on scroll
-- **WHEN** CeorlShell is in controlled mode (`activeIndex` provided) and user scrolls
-- **THEN** `onIndexChange` SHALL NOT be called (parent controls state)
-
-### Requirement: CeorlShell exposes imperative scrollToColumn via ref
-CeorlShell SHALL expose a ref handle with a `scrollToColumn(index: number)` method that scrolls the container to bring the specified column index into view using smooth scroll behavior.
-
-#### Scenario: Programmatic scroll to column
-- **WHEN** `scrollToColumn(2)` is called on a CeorlShell ref with at least 3 columns
-- **THEN** the shell SHALL scroll so that column index 2 is aligned to the snap position
-
-#### Scenario: Invalid index does nothing
-- **WHEN** `scrollToColumn(-1)` or `scrollToColumn(999)` is called
-- **THEN** the shell SHALL NOT scroll and SHALL NOT throw
-
 ### Requirement: CeorlShell renders all children as columns
 CeorlShell SHALL render each direct child in a horizontally scrollable flex row, preserving scroll-snap alignment on each column boundary.
 
@@ -86,4 +38,11 @@ The `useKeyboardNav` hook SHALL accept an optional `onNavigate(direction)` callb
 #### Scenario: Arrow keys trigger onNavigate
 - **WHEN** user presses ArrowRight and `onNavigate` callback is provided
 - **THEN** `onNavigate('next')` SHALL be called, then the container SHALL scroll right
+
+### Requirement: Shell is purely controlled via activeIndex prop
+CeorlShell SHALL be a fully controlled component. `activeIndex` is a required prop. The shell SHALL NOT maintain any internal scroll state. All scroll position changes SHALL be driven by consumer code calling `ref.current.scrollTo(index)`.
+
+#### Scenario: activeIndex prop is required
+- **WHEN** CeorlShell is rendered without `activeIndex` prop
+- **THEN** TypeScript SHALL report a type error
 
