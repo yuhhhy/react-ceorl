@@ -34,6 +34,12 @@ CEORL 只做两件消费者自己写起来很麻烦的事：
 
 库不兜底任何一种策略——每家应用不一样，兜了也是错的一半。
 
+### 纯受控 — 无浏览器干预输入
+
+Shell 使用 `overflow: hidden`。浏览器不接管任何输入——用户无法通过拖滚动条或触控板直接改变 `scrollLeft`。所有滚动状态通过 `scrollTo({ left, behavior })` 由消费者显式驱动，受控模型封闭。
+
+滚轮/触摸由消费者自行接管（如果需要），映射到 `scrollTo`。`scrollLeft` 读写仍正常——`overflow: hidden` 只阻止用户输入，不阻止程序化操作。
+
 ---
 
 ## 公开 API
@@ -146,7 +152,7 @@ export default function Dashboard() {
 |------|-----------------|---------|---------|-----------|
 | main | `focusColumn`, `getColumns`, `scrollElement` | `useScrollSettle`, `focusSeqRef`, `activeIndex` | 无（消费者自己 `useEffect` 配 `document`） | 中 |
 | PR #2 | + `scrollElement` getter | 同上 | 同上 | 中 |
-| 本设计 | `scrollTo`, `scrollElement` | 无 | 消费者 `useEffect` 配容器级 | 中+（但无隐性契约） |
+| 本设计 | `scrollTo`, `scrollElement` | 无 | 消费者 `useEffect` 配容器级 | 中+（但无隐性契约，溢出模型封闭） |
 
 消费者负担没有显著增加——之前也不用管焦点，而是根本管不了（浏览器焦点在 Shell 外就不工作）。现在是「你管，你一定能管好」。
 
@@ -157,6 +163,10 @@ export default function Dashboard() {
 ```
 src/hooks/useScrollSettle.ts        — 不再需要
 src/hooks/useScrollSettle.test.ts   — 同上
+src/ceorl.css
+  ├─ overflow-x: auto → overflow: hidden
+  ├─ scrollbar-width: none → 删除
+  └─ ::-webkit-scrollbar → 删除
 src/components/Shell.tsx
   ├─ useScrollSettle 调用
   ├─ focusSeqRef
