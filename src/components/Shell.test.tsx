@@ -175,7 +175,7 @@ describe('CeorlShell', () => {
     Object.defineProperty(cols[1], 'offsetLeft', { value: 800 })
     Object.defineProperty(cols[1], 'offsetWidth', { value: 400 })
 
-    // col1: colRight=1200 > viewRight=1050, L=max(0,1200-1000)=200, R=800
+    // col1: colRight=1200 > viewRight=1050，L=max(0,1200-1000)=200，R=800
     // |50-200|=150 < |50-800|=750 → L=200
     ref.current?.focusColumn(1)
     expect(shell.scrollTo).toHaveBeenCalledWith({ left: 200, behavior: 'smooth' })
@@ -199,7 +199,7 @@ describe('CeorlShell', () => {
     Object.defineProperty(cols[1], 'offsetLeft', { value: 500 })
     Object.defineProperty(cols[1], 'offsetWidth', { value: 1200 })
 
-    // col1: colRight=1700 > viewRight=1400, L=max(0,1700-1000)=700, R=500
+    // col1: colRight=1700 > viewRight=1400，L=max(0,1700-1000)=700，R=500
     // |400-700|=300 > |400-500|=100 → R=500
     ref.current?.focusColumn(1)
     expect(shell.scrollTo).toHaveBeenCalledWith({ left: 500, behavior: 'smooth' })
@@ -272,10 +272,10 @@ describe('CeorlShell', () => {
     )
     const shell = container.querySelector('.ceorl-shell') as HTMLElement
 
-    // Simulate user scrolling to column 1
+    // 模拟用户滚动到第 2 列
     Object.defineProperty(shell, 'scrollLeft', { value: 600, configurable: true })
 
-    // Update column widths for computeIndex
+    // 更新列宽度供 computeIndex 计算
     const cols = shell.querySelectorAll('.ceorl-column')
     Object.defineProperty(cols[0], 'offsetWidth', { value: 500 })
     Object.defineProperty(cols[1], 'offsetWidth', { value: 500 })

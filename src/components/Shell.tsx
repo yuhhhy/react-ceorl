@@ -59,7 +59,7 @@ export const CeorlShell = forwardRef<
 
   useScrollSettle(containerRef, { onScrollSettle: handleScrollSettle })
 
-  // Only stable refs (containerRef, focusSeqRef) — safe to omit from deps
+  // 只有稳定 ref（containerRef、focusSeqRef），省略 deps 安全
   const doFocus = useCallback(
     (targetIndex: number) => {
       const container = containerRef.current
