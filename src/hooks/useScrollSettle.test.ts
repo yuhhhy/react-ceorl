@@ -54,14 +54,6 @@ describe('useScrollSettle', () => {
     )
   })
 
-  it('returns activeIndex starting at 0', () => {
-    const container = createMockContainer()
-    const ref = { current: container }
-
-    const { result } = renderHook(() => useScrollSettle(ref))
-    expect(result.current.activeIndex).toBe(0)
-  })
-
   it('calls onScrollSettle with index and seq on scroll settle', async () => {
     vi.useFakeTimers()
     const container = document.createElement('div')
@@ -108,16 +100,13 @@ describe('useScrollSettle', () => {
 
   it('does nothing when container ref is null', () => {
     const ref = { current: null }
-    const { result } = renderHook(() => useScrollSettle(ref))
-    expect(result.current.activeIndex).toBe(0)
+    expect(() => renderHook(() => useScrollSettle(ref))).not.toThrow()
   })
 
   it('handles container with no columns gracefully', () => {
     const container = createMockContainer()
     const ref = { current: container }
-
-    const { result } = renderHook(() => useScrollSettle(ref))
-    expect(result.current.activeIndex).toBe(0)
+    expect(() => renderHook(() => useScrollSettle(ref))).not.toThrow()
   })
 
   it('scrollend clears debounce timer and fires settle exactly once', () => {

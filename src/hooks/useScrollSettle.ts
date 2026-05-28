@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
+import { useCallback, useEffect, useRef, type RefObject } from 'react'
 
 export interface ScrollSettleOptions {
   onScrollSettle?: (index: number, seq: number) => void
@@ -7,8 +7,7 @@ export interface ScrollSettleOptions {
 export function useScrollSettle(
   containerRef: RefObject<HTMLDivElement | null>,
   options?: ScrollSettleOptions,
-): { activeIndex: number } {
-  const [activeIndex, setActiveIndex] = useState(0)
+) {
   const onScrollSettleRef = useRef(options?.onScrollSettle)
 
   useEffect(() => {
@@ -39,7 +38,6 @@ export function useScrollSettle(
 
     const handleSettle = () => {
       const idx = computeIndex(el)
-      setActiveIndex(idx)
       scrollingRef.current = false
       onScrollSettleRef.current?.(idx, seqRef.current)
     }
@@ -72,6 +70,4 @@ export function useScrollSettle(
       clearTimeout(scrollTimer)
     }
   }, [containerRef, computeIndex])
-
-  return { activeIndex }
 }
