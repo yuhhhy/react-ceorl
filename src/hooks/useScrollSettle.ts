@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
 
-export interface ScrollSnapOptions {
+export interface ScrollSettleOptions {
   onScrollSettle?: (index: number, seq: number) => void
 }
 
-export function useScrollSnap(
+export function useScrollSettle(
   containerRef: RefObject<HTMLDivElement | null>,
-  options?: ScrollSnapOptions,
+  options?: ScrollSettleOptions,
 ): { activeIndex: number } {
   const [activeIndex, setActiveIndex] = useState(0)
   const onScrollSettleRef = useRef(options?.onScrollSettle)

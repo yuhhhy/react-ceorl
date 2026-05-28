@@ -8,8 +8,6 @@
   display: flex;
   overflow-x: auto;
   overflow-y: hidden;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
   scrollbar-width: none;
 }
 .ceorl-shell::-webkit-scrollbar {
@@ -19,7 +17,6 @@
 /* --- 列容器 --- */
 .ceorl-column {
   flex-shrink: 0;
-  scroll-snap-align: start;
   height: 100%;
   overflow-y: auto;
   box-sizing: border-box;

@@ -11,8 +11,7 @@ import {
 } from 'react'
 import type { CeorlShellHandle, CeorlShellProps } from './types'
 import { CeorlColumn } from './Column'
-import { useScrollSnap } from '../hooks/useScrollSnap'
-import { useKeyboardNav } from '../hooks/useKeyboardNav'
+import { useScrollSettle } from '../hooks/useScrollSettle'
 
 export const CeorlShell = forwardRef<
   CeorlShellHandle,
@@ -24,7 +23,6 @@ export const CeorlShell = forwardRef<
     defaultActiveIndex = 0,
     onIndexChange,
     columns,
-    enableKeyboardNav = false,
     className = '',
     style,
     ...props
@@ -36,9 +34,6 @@ export const CeorlShell = forwardRef<
 
   const [internalIndex, setInternalIndex] = useState(defaultActiveIndex)
   const activeIndex = controlledIndex ?? internalIndex
-
-  const activeIndexRef = useRef(activeIndex)
-  activeIndexRef.current = activeIndex
 
   const focusSeqRef = useRef(0)
 
@@ -62,7 +57,7 @@ export const CeorlShell = forwardRef<
     [updateIndex],
   )
 
-  useScrollSnap(containerRef, { onScrollSettle: handleScrollSettle })
+  useScrollSettle(containerRef, { onScrollSettle: handleScrollSettle })
 
   const doFocus = useCallback(
     (targetIndex: number) => {
@@ -73,25 +68,25 @@ export const CeorlShell = forwardRef<
 
       focusSeqRef.current += 1
       const col = cols[targetIndex] as HTMLElement
-      col.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' })
+
+      const viewLeft = container.scrollLeft
+      const viewRight = viewLeft + container.clientWidth
+      const colLeft = col.offsetLeft
+      const colRight = colLeft + col.offsetWidth
+
+      if (colLeft >= viewLeft && colRight <= viewRight) return
+
+      const L = Math.max(0, colRight - container.clientWidth)
+      const R = colLeft
+
+      const target = Math.abs(container.scrollLeft - L) <= Math.abs(container.scrollLeft - R)
+        ? L
+        : R
+
+      container.scrollTo({ left: target, behavior: 'smooth' })
     },
     [],
   )
-
-  const handleNavigate = useCallback(
-    (dir: 'prev' | 'next') => {
-      const current = activeIndexRef.current
-      const newIndex = dir === 'next' ? current + 1 : current - 1
-      if (newIndex < 0) return
-      const container = containerRef.current
-      if (!container) return
-      if (newIndex >= container.querySelectorAll('.ceorl-column').length) return
-      doFocus(newIndex)
-    },
-    [doFocus],
-  )
-
-  useKeyboardNav(containerRef, enableKeyboardNav, handleNavigate)
 
   const getColumns = useCallback((): HTMLDivElement[] => {
     if (!containerRef.current) return []
