@@ -40,9 +40,9 @@ The `useKeyboardNav` hook SHALL accept an optional `onNavigate(direction)` callb
 - **THEN** `onNavigate('next')` SHALL be called, then the container SHALL scroll right
 
 ### Requirement: Shell is purely controlled via activeIndex prop
-CeorlShell SHALL be a fully controlled component. `activeIndex` is a required prop. The shell SHALL NOT maintain any internal scroll state. All scroll position changes SHALL be driven by consumer code calling `ref.current.scrollTo(index)`.
+CeorlShell SHALL be a fully controlled component. `activeIndex` SHALL default to `0` when not provided. The shell SHALL NOT maintain any internal scroll state. All scroll position changes SHALL be driven by consumer code calling `ref.current.scrollTo(index)`.
 
-#### Scenario: activeIndex prop is required
+#### Scenario: activeIndex defaults to 0
 - **WHEN** CeorlShell is rendered without `activeIndex` prop
-- **THEN** TypeScript SHALL report a type error
+- **THEN** `data-active` SHALL be applied to the first column (index 0)
 

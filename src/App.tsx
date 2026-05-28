@@ -104,7 +104,7 @@ export default function App() {
     });
   }, [activeIndex]);
 
-  // 键盘导航 — document 全局监听，投入 editable 元素豁免
+  // 键盘导航 — document 全局监听，豁免 editable 元素
   const idxRef = useRef(activeIndex)
   const colsRef = useRef(columns.length)
   useEffect(() => {

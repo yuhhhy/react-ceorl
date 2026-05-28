@@ -159,7 +159,7 @@ export default function App() {
 
 ```bash
 pnpm dev        # 启动
-pnpm test       # 测试（24 个）
+pnpm test       # 测试（30 个）
 pnpm typecheck  # 类型检查
 pnpm build      # 构建
 ```

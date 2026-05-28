@@ -33,8 +33,8 @@ export const CeorlShell = forwardRef<
 ) {
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const handleScrollTo = (index: number) => {
-    scrollToColumn(containerRef.current, index, { behavior: 'smooth' })
+  const handleScrollTo = (index: number, opts?: { behavior?: ScrollBehavior }) => {
+    scrollToColumn(containerRef.current, index, opts)
   }
 
   useImperativeHandle(

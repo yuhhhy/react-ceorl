@@ -10,7 +10,7 @@ export interface ColumnDescriptor {
 }
 
 export interface CeorlShellHandle {
-  scrollTo: (index: number) => void
+  scrollTo: (index: number, opts?: { behavior?: ScrollBehavior }) => void
   scrollElement: HTMLDivElement | null
 }
 

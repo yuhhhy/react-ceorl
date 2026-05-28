@@ -29,5 +29,5 @@ export function scrollToColumn(
 
   const target = Math.abs(container.scrollLeft - L) <= Math.abs(container.scrollLeft - R) ? L : R
 
-  container.scrollTo({ left: target, ...opts })
+  container.scrollTo({ left: target, behavior: 'smooth', ...opts })
 }
