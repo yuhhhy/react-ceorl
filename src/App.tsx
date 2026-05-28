@@ -104,29 +104,31 @@ export default function App() {
     });
   }, [activeIndex]);
 
-  // 键盘导航 — 始终拦截方向键阻止原生滚动，keyboardNav 为 true 时执行导航
+  // 键盘导航 — 容器级监听，只在 Shell 内响应
   useEffect(() => {
+    if (!keyboardNav) return
+    const el = shellRef.current?.scrollElement
+    if (!el) return
+
     const handler = (e: KeyboardEvent) => {
-      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
-      const target = e.target as HTMLElement;
-      if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") return;
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return
+      if ((e.target as HTMLElement).closest('input, textarea, select, [contenteditable]')) return
 
-      e.preventDefault();
-      if (!keyboardNav) return;
+      e.preventDefault()
 
-      if (e.key === "ArrowLeft" && activeIndex > 0) {
-        const next = activeIndex - 1;
-        setActiveIndex(next);
-        shellRef.current?.focusColumn(next);
-      } else if (e.key === "ArrowRight" && activeIndex < columns.length - 1) {
-        const next = activeIndex + 1;
-        setActiveIndex(next);
-        shellRef.current?.focusColumn(next);
+      if (e.key === 'ArrowLeft' && activeIndex > 0) {
+        const next = activeIndex - 1
+        setActiveIndex(next)
+        shellRef.current?.focusColumn(next)
+      } else if (e.key === 'ArrowRight' && activeIndex < columns.length - 1) {
+        const next = activeIndex + 1
+        setActiveIndex(next)
+        shellRef.current?.focusColumn(next)
       }
-    };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
-  }, [keyboardNav, activeIndex, columns.length]);
+    }
+    el.addEventListener('keydown', handler)
+    return () => el.removeEventListener('keydown', handler)
+  }, [keyboardNav, activeIndex, columns.length])
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>

@@ -12,6 +12,7 @@ export interface ColumnDescriptor {
 export interface CeorlShellHandle {
   focusColumn: (index: number) => void
   getColumns: () => HTMLDivElement[]
+  scrollElement: HTMLDivElement | null
 }
 
 export interface CeorlShellProps {
