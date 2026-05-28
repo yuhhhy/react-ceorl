@@ -65,6 +65,7 @@ function App() {
 |------|------|
 | `focusColumn(index)` | 最小滚动聚焦到目标列，已在视口内则无操作 |
 | `getColumns()` | 返回所有列的 DOM 元素数组 |
+| `scrollElement` | 滚动容器 DOM 引用，供消费者挂载键盘事件 |
 
 ### CeorlColumn
 
@@ -141,12 +142,15 @@ const [columns, setColumns] = useState<ColumnDescriptor[]>([...])
 const ref = useRef<CeorlShellHandle>(null)
 
 useEffect(() => {
+  const el = ref.current?.scrollElement
+  if (!el) return
   const handler = (e: KeyboardEvent) => {
+    if ((e.target as HTMLElement).closest('input, textarea, select, [contenteditable]')) return
     if (e.key === 'ArrowLeft')  ref.current?.focusColumn(prev)
     if (e.key === 'ArrowRight') ref.current?.focusColumn(next)
   }
-  document.addEventListener('keydown', handler)
-  return () => document.removeEventListener('keydown', handler)
+  el.addEventListener('keydown', handler)
+  return () => el.removeEventListener('keydown', handler)
 }, [])
 ```
 
@@ -155,7 +159,7 @@ useEffect(() => {
 ```bash
 pnpm install
 pnpm dev        # 启动开发服务器
-pnpm test       # 运行测试（37 个）
+pnpm test       # 运行测试（36 个）
 pnpm typecheck  # 类型检查
 pnpm lint       # 代码检查
 pnpm build      # 生产构建
