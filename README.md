@@ -1,84 +1,74 @@
+<div align="center">
+
 # CEORL
 
-**Composable Ergonomic Ordered Rolling Layouts** · 希儿滚动平铺
+**C**omposable **E**rgonomic **O**rdered **R**olling **L**ayouts · 希儿滚动平铺
 
-React 横向滚动平铺窗口布局组件库。灵感来自 [niri](https://github.com/YaLTeR/niri)（scrollable-tiling Wayland compositor）。
+[![TypeScript](https://img.shields.io/badge/TypeScript-6.0-blue)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-19-61dafb?logo=react)](https://react.dev)
+[![Vite](https://img.shields.io/badge/Vite-8-646cff?logo=vite)](https://vite.dev)
+[![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│ [ 面板 A 1/2 ][ 面板 B 1/3 ][ 面板 C 1/4 ][ 面板 D ] → 滚 │
-└──────────────────────────────────────────────────────────────┘
-```
+React 横向滚动平铺窗口布局组件库 · 受 [niri](https://github.com/YaLTeR/niri) 启发
 
-## 特性
+> **纯受控 · 零策略 · 只做布局。** 键盘、焦点、动画——全部由消费者决定。
 
-- **横向平铺** — 面板按列排列，横向滚动切换
-- **可变列宽** — 每列支持 1/2、1/3、1/4 宽度比例
-- **列内堆叠** — 同一列可纵向分割多个子面板 (`CeorlStack`)
-- **受控/非受控** — 完整 React 状态管理：`activeIndex`、`onIndexChange`
-- **最小移动** — `focusColumn(index)` 计算 L/R 双面吸附，以最小滚动将列带入视口；已在视口内则不动
-- **焦点高亮** — 当前激活列显示 `::after` 伪元素高亮，通过 `--ceorl-focus-color` 自定义
-- **零布局依赖** — 纯 CSS（flex + scroll）+ React，不依赖第三方布局库
+<img src="docs/demo.svg" alt="CEORL 滚动平铺示意图" width="100%">
+
+</div>
+
+---
 
 ## 快速开始
 
+```bash
+pnpm add ceorl react react-dom
+```
+
 ```tsx
-import { CeorlShell, CeorlColumn, CeorlStack } from 'ceorl'
+import { CeorlShell, CeorlColumn } from 'ceorl'
 
 function App() {
   return (
     <CeorlShell>
-      <CeorlColumn width="1/2">
-        <h2>面板 A</h2>
-        <p>½ 宽度列</p>
-      </CeorlColumn>
-      <CeorlColumn width="1/3">
-        <CeorlStack>
-          <div>子面板 1</div>
-          <div>子面板 2</div>
-        </CeorlStack>
-      </CeorlColumn>
-      <CeorlColumn width="1/4">
-        <p>¼ 宽度列</p>
-      </CeorlColumn>
+      <CeorlColumn width="1/2"><h2>面板 A</h2></CeorlColumn>
+      <CeorlColumn width="1/3"><h2>面板 B</h2></CeorlColumn>
+      <CeorlColumn width="1/4"><h2>面板 C</h2></CeorlColumn>
     </CeorlShell>
   )
 }
 ```
 
-## 组件
+---
+
+## API
 
 ### CeorlShell
 
-顶层横向滚动容器。
+`ref` 暴露：
 
-| Prop | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `activeIndex` | `number` | — | 受控模式：当前激活列索引 |
-| `defaultActiveIndex` | `number` | `0` | 非受控模式：初始激活列索引 |
-| `onIndexChange` | `(index: number) => void` | — | 激活列变化时回调 |
-| `columns` | `ColumnDescriptor[]` | — | 声明式列数组（与 `children` 二选一） |
+| Handle | 类型 | 说明 |
+|--------|------|------|
+| `scrollTo(index)` | `(index: number) => void` | L/R 最小移动——把指定列滚进视口 |
+| `scrollElement` | `HTMLDivElement \| null` | 滚动容器 DOM 引用 |
 
-**命令式接口** (`ref.current`)：
+Props：
 
-| 方法 | 说明 |
-|------|------|
-| `focusColumn(index)` | 最小滚动聚焦到目标列，已在视口内则无操作 |
-| `getColumns()` | 返回所有列的 DOM 元素数组 |
-| `scrollElement` | 滚动容器 DOM 引用，供消费者挂载键盘事件 |
+| Prop | 类型 | 默认 | 说明 |
+|------|------|------|------|
+| `activeIndex` | `number` | `0` | `data-active` 属性映射到第几列 |
+| `columns` | `ColumnDescriptor[]` | — | 描述列配置（与 `children` 二选一） |
 
 ### CeorlColumn
 
-单列容器。
-
-| Prop | 类型 | 默认值 | 说明 |
-|------|------|--------|------|
-| `width` | `'1/2' \| '1/3' \| '1/4'` | `'1/3'` | 列宽度比例 |
-| `padding` | `string` | — | 列内边距，CSS padding 值 |
+| Prop | 类型 | 默认 | 说明 |
+|------|------|------|------|
+| `width` | `'1/2' \| '1/3' \| '1/4'` | `'1/3'` | 列宽度 |
+| `padding` | `string` | — | CSS padding 值 |
 
 ### CeorlStack
 
-列内纵向堆叠容器。子元素自动等分高度。
+列内纵向堆叠容器。子元素等分高度。
 
 ### ColumnDescriptor
 
@@ -90,79 +80,88 @@ interface ColumnDescriptor {
 }
 ```
 
-## Hooks
+### scrollToColumn
 
-| Hook | 说明 |
-|------|------|
-| `useScrollSettle(ref, options?)` | 纯观察者：检测滚动停止事件，通过 `onScrollSettle(index, seq)` 回调报告 |
+独立纯函数，无需 ref：
 
-## 定制
+```ts
+import { scrollToColumn } from 'ceorl'
+scrollToColumn(el, 3) // 滚动到第 4 列
+```
 
-### 焦点高亮颜色
+---
 
-```css
-/* 改颜色 */
-.ceorl-column { --ceorl-focus-color: #ff6b35; }
+## 消费者示例
 
-/* 完全覆盖 */
-.ceorl-column[data-active="true"]::after {
-  box-shadow: inset 0 0 0 3px red;
+### 完整 Demo（键盘 + 按钮）
+
+```tsx
+import { useRef, useState, useEffect } from 'react'
+import { CeorlShell } from 'ceorl'
+import type { CeorlShellHandle, ColumnDescriptor } from 'ceorl'
+
+export default function App() {
+  const ref = useRef<CeorlShellHandle>(null)
+  const [idx, setIdx] = useState(0)
+  const [columns] = useState<ColumnDescriptor[]>([...])
+  const [kb, setKb] = useState(true)
+
+  const idxRef = useRef(idx)
+  useEffect(() => { idxRef.current = idx })
+
+  // 键盘导航 — 全局监听
+  useEffect(() => {
+    if (!kb) return
+    const h = (e: KeyboardEvent) => {
+      if ((e.target as HTMLElement).closest('input,textarea,select,[contenteditable]')) return
+      if (e.key === 'ArrowLeft')  idxRef.current > 0 && setIdx(idxRef.current - 1)
+      if (e.key === 'ArrowRight') idxRef.current < columns.length - 1 && setIdx(idxRef.current + 1)
+    }
+    document.addEventListener('keydown', h)
+    return () => document.removeEventListener('keydown', h)
+  }, [kb])
+
+  // activeIndex 变化 → 滚动
+  useEffect(() => { ref.current?.scrollTo(idx) }, [idx])
+
+  return (
+    <>
+      <button onClick={() => setIdx(idx - 1)} disabled={idx <= 0}>← Prev</button>
+      <button onClick={() => setIdx(idx + 1)} disabled={idx >= columns.length - 1}>Next →</button>
+      <button onClick={() => setKb(!kb)}>KB: {kb ? 'ON' : 'OFF'}</button>
+
+      <CeorlShell ref={ref} columns={columns} activeIndex={idx} />
+    </>
+  )
 }
 ```
 
-### Shell 尺寸
+### 定制高亮颜色
 
-```tsx
-{/* 默认占满视口 */}
-<CeorlShell>...</CeorlShell>
-
-{/* 嵌入带工具栏的页面 */}
-<CeorlShell style={{ height: 'calc(100vh - 48px)', width: '100%' }}>
-  ...
-</CeorlShell>
+```css
+.ceorl-column { --ceorl-focus-color: #ff6b35; }
 ```
 
-### 动态列管理
+---
 
-```tsx
-const [columns, setColumns] = useState<ColumnDescriptor[]>([...])
+## 设计原则
 
-<CeorlShell
-  columns={columns}
-  activeIndex={idx}
-  onIndexChange={setIdx}
-/>
-```
+| 原则 | 说明 |
+|------|------|
+| 纯受控 | `activeIndex` 是唯一定位。`overflow: hidden` — 浏览器不接管输入 |
+| 零策略 | 不绑键盘、不管焦点、不检测滚动停稳。消费者全权 |
+| 极简 API | 2 个 handle 方法。独立纯函数 `scrollToColumn` 可无 React 使用 |
+| L/R 双面吸附 | 右面 L = max(0, colRight − viewWidth)，左面 R = colLeft，选最近的 |
 
-### 键盘导航
-
-库不再内置键盘导航（`useKeyboardNav` 已移除）。消费者通过 `focusColumn` 自行绑定：
-
-```tsx
-const ref = useRef<CeorlShellHandle>(null)
-
-useEffect(() => {
-  const el = ref.current?.scrollElement
-  if (!el) return
-  const handler = (e: KeyboardEvent) => {
-    if ((e.target as HTMLElement).closest('input, textarea, select, [contenteditable]')) return
-    if (e.key === 'ArrowLeft')  ref.current?.focusColumn(prev)
-    if (e.key === 'ArrowRight') ref.current?.focusColumn(next)
-  }
-  el.addEventListener('keydown', handler)
-  return () => el.removeEventListener('keydown', handler)
-}, [])
-```
+---
 
 ## 开发
 
 ```bash
-pnpm install
-pnpm dev        # 启动开发服务器
-pnpm test       # 运行测试（36 个）
+pnpm dev        # 启动
+pnpm test       # 测试（30 个）
 pnpm typecheck  # 类型检查
-pnpm lint       # 代码检查
-pnpm build      # 生产构建
+pnpm build      # 构建
 ```
 
 ## License

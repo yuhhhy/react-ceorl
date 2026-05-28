@@ -6,12 +6,7 @@
 /* --- 容器层 --- */
 .ceorl-shell {
   display: flex;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: none;
-}
-.ceorl-shell::-webkit-scrollbar {
-  display: none;
+  overflow: hidden;
 }
 
 /* --- 列容器 --- */

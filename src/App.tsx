@@ -104,11 +104,16 @@ export default function App() {
     });
   }, [activeIndex]);
 
-  // 键盘导航 — 容器级监听，只在 Shell 内响应
+  // 键盘导航 — document 全局监听，豁免 editable 元素
+  const idxRef = useRef(activeIndex)
+  const colsRef = useRef(columns.length)
+  useEffect(() => {
+    idxRef.current = activeIndex
+    colsRef.current = columns.length
+  })
+
   useEffect(() => {
     if (!keyboardNav) return
-    const el = shellRef.current?.scrollElement
-    if (!el) return
 
     const handler = (e: KeyboardEvent) => {
       if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return
@@ -116,19 +121,22 @@ export default function App() {
 
       e.preventDefault()
 
-      if (e.key === 'ArrowLeft' && activeIndex > 0) {
-        const next = activeIndex - 1
-        setActiveIndex(next)
-        shellRef.current?.focusColumn(next)
-      } else if (e.key === 'ArrowRight' && activeIndex < columns.length - 1) {
-        const next = activeIndex + 1
-        setActiveIndex(next)
-        shellRef.current?.focusColumn(next)
+      const current = idxRef.current
+      const total = colsRef.current
+      if (e.key === 'ArrowLeft' && current > 0) {
+        setActiveIndex(current - 1)
+      } else if (e.key === 'ArrowRight' && current < total - 1) {
+        setActiveIndex(current + 1)
       }
     }
-    el.addEventListener('keydown', handler)
-    return () => el.removeEventListener('keydown', handler)
-  }, [keyboardNav, activeIndex, columns.length])
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [keyboardNav])
+
+  // activeIndex 变化 → 滚动
+  useEffect(() => {
+    shellRef.current?.scrollTo(activeIndex)
+  }, [activeIndex])
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
@@ -184,7 +192,6 @@ export default function App() {
             const next = activeIndex - 1;
             if (next >= 0) {
               setActiveIndex(next);
-              shellRef.current?.focusColumn(next);
             }
           }}
           disabled={activeIndex <= 0}
@@ -208,7 +215,6 @@ export default function App() {
             const next = activeIndex + 1;
             if (next < columns.length) {
               setActiveIndex(next);
-              shellRef.current?.focusColumn(next);
             }
           }}
           disabled={activeIndex >= columns.length - 1}
@@ -260,7 +266,6 @@ export default function App() {
         ref={shellRef}
         columns={columns}
         activeIndex={activeIndex}
-        onIndexChange={setActiveIndex}
         style={{ flex: 1, width: "100%" }}
       />
     </div>

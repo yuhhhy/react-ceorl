@@ -1,8 +1,5 @@
-# focus-navigation Specification
+## MODIFIED Requirements
 
-## Purpose
-TBD - created by archiving change focus-behavior-refinement. Update Purpose after archive.
-## Requirements
 ### Requirement: CeorlShellHandle exposes focusColumn
 CeorlShell's imperative handle SHALL expose a `scrollTo(index: number, opts?: { behavior?: ScrollBehavior })` method named `scrollTo` (previously `focusColumn`). The method SHALL delegate to the standalone `scrollToColumn(container, index, opts)` pure function. The method SHALL NOT include any focus management — that is the consumer's responsibility.
 
@@ -21,6 +18,8 @@ The `scrollToColumn` function SHALL compute both L = max(0, colRight - clientWid
 - **WHEN** `scrollToColumn` is called and R is closer to `scrollLeft` than L
 - **THEN** `scrollTo` SHALL be called with `left = R`
 
+## ADDED Requirements
+
 ### Requirement: scrollToColumn is a standalone pure function
 The `scrollToColumn(container, index, opts?)` function SHALL be exported from the library entry point. It SHALL be a pure function with no React dependencies, no side effects, and no state.
 
@@ -28,3 +27,7 @@ The `scrollToColumn(container, index, opts?)` function SHALL be exported from th
 - **WHEN** a consumer calls `scrollToColumn(el, 2)` where `el` is a `.ceorl-shell` DOM element
 - **THEN** the container SHALL scroll to bring column 2 into view
 
+## REMOVED Requirements
+
+### Requirement: focusColumn replaces scrollToColumn in public API
+**Reason**: `focusColumn` 重命名为 `scrollTo`。独立函数 `scrollToColumn` 是其底层实现。
