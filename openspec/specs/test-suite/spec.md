@@ -66,29 +66,38 @@ Tests for useScrollSnap SHALL verify: event listener registration/cleanup, activ
 - **WHEN** a component using useScrollSnap unmounts
 - **THEN** the scroll event listener SHALL be removed
 
-### Requirement: useKeyboardNav hook tests exist
-Tests for useKeyboardNav SHALL verify: ArrowLeft/ArrowRight triggers scroll, disabled state suppresses events, onNavigate callback fires, and event listener cleanup.
-
-#### Scenario: ArrowRight scrolls right
-- **WHEN** ArrowRight key is pressed while hook is active
-- **THEN** `scrollBy` SHALL be called with a positive `left` delta
-
-#### Scenario: ArrowLeft scrolls left
-- **WHEN** ArrowLeft key is pressed while hook is active
-- **THEN** `scrollBy` SHALL be called with a negative `left` delta
-
-#### Scenario: Disabled suppresses key events
-- **WHEN** hook is initialized with `enabled=false` and ArrowRight is pressed
-- **THEN** `scrollBy` SHALL NOT be called
-
-#### Scenario: Non-arrow keys are ignored
-- **WHEN** a key other than ArrowLeft/ArrowRight is pressed
-- **THEN** no scroll action SHALL occur
-
 ### Requirement: Testing libraries are installed as dev dependencies
 The project SHALL include `vitest`, `@testing-library/react`, `@testing-library/jest-dom`, and `jsdom` as devDependencies.
 
 #### Scenario: Dependencies resolve
 - **WHEN** `pnpm install` is run
 - **THEN** vitest, @testing-library/react, @testing-library/jest-dom, and jsdom SHALL be installed and importable
+
+### Requirement: scrollend dedup regression test exists
+The `useScrollSettle` test suite SHALL include a test that verifies `onScrollSettle` is called exactly once per scroll gesture on scrollend-supporting test environments.
+
+#### Scenario: Single onScrollSettle call on scroll settle
+- **WHEN** a scroll gesture completes in a test environment that fires `scrollend`
+- **THEN** `onScrollSettle` SHALL be called exactly once
+
+### Requirement: focusColumn single-fire regression test exists
+The `CeorlShell` test suite SHALL include a test that verifies `onIndexChange` is called exactly once when `focusColumn` triggers a scroll.
+
+#### Scenario: onIndexChange fires once for focusColumn
+- **WHEN** `focusColumn(1)` is called on a shell with `onIndexChange` callback
+- **THEN** `onIndexChange` SHALL be called exactly once with value 1, and SHALL NOT be called with any intermediate value
+
+### Requirement: Shell handles falsy-but-valid children
+The `CeorlShell` test suite SHALL include a test that verifies the shell renders when children is a falsy-but-valid React node such as `0`.
+
+#### Scenario: Children equals 0 renders as a column
+- **WHEN** `CeorlShell` is rendered with children `{0}`
+- **THEN** a column containing the text "0" SHALL be present in the DOM
+
+### Requirement: defaultActiveIndex sets correct active column
+The `CeorlShell` test suite SHALL include a test that verifies `defaultActiveIndex={1}` results in the second column having `data-active="true"`.
+
+#### Scenario: Second column is active with defaultActiveIndex={1}
+- **WHEN** `CeorlShell` is rendered with `defaultActiveIndex={1}` and three children columns
+- **THEN** the second column SHALL have `data-active="true"` and the first SHALL NOT
 

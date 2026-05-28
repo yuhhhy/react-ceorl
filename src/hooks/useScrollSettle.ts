@@ -1,14 +1,21 @@
-import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
+import { useCallback, useEffect, useRef, type RefObject } from 'react'
 
-export interface ScrollSnapOptions {
+export interface ScrollSettleOptions {
   onScrollSettle?: (index: number, seq: number) => void
 }
 
-export function useScrollSnap(
+/**
+ * useScrollSettle — 滚动停稳检测
+ *
+ * 监听容器的 scroll 事件，在滚动停止后计算当前可见列的索引。
+ * 支持两层策略：支持 scrollend 的浏览器优先用 scrollend 事件，
+ * 不支持的浏览器回退到 300ms 防抖。
+ * 通过 onScrollSettle 回调报告 (列索引, 序列号)，调用方可丢弃过时事件。
+ */
+export function useScrollSettle(
   containerRef: RefObject<HTMLDivElement | null>,
-  options?: ScrollSnapOptions,
-): { activeIndex: number } {
-  const [activeIndex, setActiveIndex] = useState(0)
+  options?: ScrollSettleOptions,
+) {
   const onScrollSettleRef = useRef(options?.onScrollSettle)
 
   useEffect(() => {
@@ -18,6 +25,7 @@ export function useScrollSnap(
   const seqRef = useRef(0)
   const scrollingRef = useRef(false)
 
+  // 根据 scrollLeft 累积偏移计算当前完全可见的列索引
   const computeIndex = useCallback((el: HTMLDivElement) => {
     const cols = el.querySelectorAll('.ceorl-column')
     if (cols.length === 0) return 0
@@ -39,13 +47,18 @@ export function useScrollSnap(
 
     const handleSettle = () => {
       const idx = computeIndex(el)
-      setActiveIndex(idx)
       scrollingRef.current = false
       onScrollSettleRef.current?.(idx, seqRef.current)
     }
 
+    // scrollend 原生事件 — 更精确，先清定时器防止双发
+    const handleScrollend = () => {
+      clearTimeout(scrollTimer)
+      handleSettle()
+    }
+
     if (supportsScrollend) {
-      el.addEventListener('scrollend', handleSettle)
+      el.addEventListener('scrollend', handleScrollend)
     }
 
     let scrollTimer: ReturnType<typeof setTimeout>
@@ -61,12 +74,10 @@ export function useScrollSnap(
 
     return () => {
       if (supportsScrollend) {
-        el.removeEventListener('scrollend', handleSettle)
+        el.removeEventListener('scrollend', handleScrollend)
       }
       el.removeEventListener('scroll', handleScroll)
       clearTimeout(scrollTimer)
     }
   }, [containerRef, computeIndex])
-
-  return { activeIndex }
 }

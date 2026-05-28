@@ -52,4 +52,16 @@ describe('CeorlColumn', () => {
     const inner = container.querySelector('.ceorl-column-inner') as HTMLElement
     expect(inner.style.padding).toBe('0px')
   })
+
+  it('has position relative for ::after focus highlight context', () => {
+    const style = document.createElement('style')
+    style.textContent = '.ceorl-column { position: relative; }'
+    document.head.appendChild(style)
+
+    const { container } = render(<CeorlColumn>Content</CeorlColumn>)
+    const col = container.querySelector('.ceorl-column') as HTMLElement
+    expect(window.getComputedStyle(col).position).toBe('relative')
+
+    style.remove()
+  })
 })

@@ -20,7 +20,6 @@ export interface CeorlShellProps {
   defaultActiveIndex?: number
   onIndexChange?: (index: number) => void
   columns?: readonly ColumnDescriptor[]
-  enableKeyboardNav?: boolean
 }
 
 export interface CeorlColumnProps {

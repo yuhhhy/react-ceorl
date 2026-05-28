@@ -88,16 +88,24 @@ describe('CeorlShell', () => {
     expect(() => ref.current?.focusColumn(999)).not.toThrow()
   })
 
+  it('renders children when value is 0 (falsy but valid React node)', () => {
+    render(<CeorlShell>{0}</CeorlShell>)
+    expect(document.querySelector('.ceorl-shell')).toBeInTheDocument()
+    expect(screen.getByText('0')).toBeInTheDocument()
+  })
+
   it('defaultActiveIndex sets initial active column', () => {
-    const ref = createRef<CeorlShellHandle>()
     render(
-      <CeorlShell ref={ref} defaultActiveIndex={0}>
+      <CeorlShell defaultActiveIndex={1}>
         <CeorlColumn>A</CeorlColumn>
         <CeorlColumn>B</CeorlColumn>
+        <CeorlColumn>C</CeorlColumn>
       </CeorlShell>,
     )
-    const cols = ref.current?.getColumns()
-    expect(cols).toHaveLength(2)
+    const cols = document.querySelectorAll('.ceorl-column')
+    expect(cols[0]).not.toHaveAttribute('data-active')
+    expect(cols[1]).toHaveAttribute('data-active', 'true')
+    expect(cols[2]).not.toHaveAttribute('data-active')
   })
 
   it('has default width 100vw and height 100vh as inline styles', () => {
@@ -120,32 +128,6 @@ describe('CeorlShell', () => {
     const shell = container.querySelector('.ceorl-shell') as HTMLElement
     expect(shell.style.height).toBe('calc(100vh - 64px)')
     expect(shell.style.width).toBe('800px')
-  })
-
-  it('keyboard nav is disabled by default', () => {
-    render(
-      <CeorlShell>
-        <CeorlColumn>Test</CeorlColumn>
-      </CeorlShell>,
-    )
-    // Arrow keys should not cause any scroll when keyboard nav is disabled
-    expect(() => {
-      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }))
-    }).not.toThrow()
-  })
-
-  it('keyboard nav calls focusColumn when enabled', () => {
-    const { container } = render(
-      <CeorlShell enableKeyboardNav={true}>
-        <CeorlColumn>A</CeorlColumn>
-        <CeorlColumn>B</CeorlColumn>
-      </CeorlShell>,
-    )
-    const cols = container.querySelectorAll('.ceorl-column')
-    const scrollIntoViewSpy = vi.fn()
-    Object.defineProperty(cols[1], 'scrollIntoView', { value: scrollIntoViewSpy })
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }))
-    expect(scrollIntoViewSpy).toHaveBeenCalled()
   })
 
   it('applies data-active to active column in columns mode', () => {
@@ -175,47 +157,76 @@ describe('CeorlShell', () => {
     expect(cols[1]).not.toHaveAttribute('data-active')
   })
 
-  it('focusColumn calls scrollIntoView on the target column', () => {
+  it('focusColumn picks L when right snap face is closer', () => {
     const ref = createRef<CeorlShellHandle>()
-    render(
+    const { container } = render(
       <CeorlShell ref={ref}>
         <CeorlColumn>A</CeorlColumn>
         <CeorlColumn>B</CeorlColumn>
-        <CeorlColumn>C</CeorlColumn>
       </CeorlShell>,
     )
-    const cols = document.querySelectorAll('.ceorl-column')
-    const spy = vi.fn()
-    Object.defineProperty(cols[2], 'scrollIntoView', { value: spy })
-    ref.current?.focusColumn(2)
-    expect(spy).toHaveBeenCalledWith({
-      behavior: 'smooth',
-      block: 'nearest',
-      inline: 'nearest',
-    })
+    const shell = container.querySelector('.ceorl-shell') as HTMLElement
+    shell.scrollTo = vi.fn()
+    Object.defineProperty(shell, 'scrollLeft', { value: 50 })
+    Object.defineProperty(shell, 'clientWidth', { value: 1000 })
+
+    const cols = shell.querySelectorAll('.ceorl-column')
+    Object.defineProperty(cols[0], 'offsetLeft', { value: 0 })
+    Object.defineProperty(cols[1], 'offsetLeft', { value: 800 })
+    Object.defineProperty(cols[1], 'offsetWidth', { value: 400 })
+
+    // col1: colRight=1200 > viewRight=1050，L=max(0,1200-1000)=200，R=800
+    // |50-200|=150 < |50-800|=750 → L=200
+    ref.current?.focusColumn(1)
+    expect(shell.scrollTo).toHaveBeenCalledWith({ left: 200, behavior: 'smooth' })
   })
 
-  it('focusColumn on first column calls scrollIntoView', () => {
+  it('focusColumn picks R when left snap face is closer', () => {
     const ref = createRef<CeorlShellHandle>()
-    render(
-      <CeorlShell ref={ref} activeIndex={2}>
+    const { container } = render(
+      <CeorlShell ref={ref}>
         <CeorlColumn>A</CeorlColumn>
         <CeorlColumn>B</CeorlColumn>
-        <CeorlColumn>C</CeorlColumn>
       </CeorlShell>,
     )
-    const cols = document.querySelectorAll('.ceorl-column')
-    const spy = vi.fn()
-    Object.defineProperty(cols[0], 'scrollIntoView', { value: spy })
-    ref.current?.focusColumn(0)
-    expect(spy).toHaveBeenCalledWith({
-      behavior: 'smooth',
-      block: 'nearest',
-      inline: 'nearest',
-    })
+    const shell = container.querySelector('.ceorl-shell') as HTMLElement
+    shell.scrollTo = vi.fn()
+    Object.defineProperty(shell, 'scrollLeft', { value: 400 })
+    Object.defineProperty(shell, 'clientWidth', { value: 1000 })
+
+    const cols = shell.querySelectorAll('.ceorl-column')
+    Object.defineProperty(cols[0], 'offsetLeft', { value: 0 })
+    Object.defineProperty(cols[1], 'offsetLeft', { value: 500 })
+    Object.defineProperty(cols[1], 'offsetWidth', { value: 1200 })
+
+    // col1: colRight=1700 > viewRight=1400，L=max(0,1700-1000)=700，R=500
+    // |400-700|=300 > |400-500|=100 → R=500
+    ref.current?.focusColumn(1)
+    expect(shell.scrollTo).toHaveBeenCalledWith({ left: 500, behavior: 'smooth' })
   })
 
-  it('onIndexChange is called when focusColumn is invoked', () => {
+  it('focusColumn does not scroll when column is fully visible', () => {
+    const ref = createRef<CeorlShellHandle>()
+    const { container } = render(
+      <CeorlShell ref={ref}>
+        <CeorlColumn>A</CeorlColumn>
+        <CeorlColumn>B</CeorlColumn>
+      </CeorlShell>,
+    )
+    const shell = container.querySelector('.ceorl-shell') as HTMLElement
+    shell.scrollTo = vi.fn()
+    Object.defineProperty(shell, 'clientWidth', { value: 1000 })
+
+    const cols = shell.querySelectorAll('.ceorl-column')
+    Object.defineProperty(cols[0], 'offsetLeft', { value: 0 })
+    Object.defineProperty(cols[0], 'offsetWidth', { value: 500 })
+
+    ref.current?.focusColumn(0)
+    expect(shell.scrollTo).not.toHaveBeenCalled()
+  })
+
+  it('onIndexChange is called once after scroll settle when focusColumn is invoked', () => {
+    vi.useFakeTimers()
     const onIndexChange = vi.fn()
     const ref = createRef<CeorlShellHandle>()
     const { container } = render(
@@ -224,13 +235,30 @@ describe('CeorlShell', () => {
         <CeorlColumn>B</CeorlColumn>
       </CeorlShell>,
     )
-    // Mock scrollIntoView since jsdom doesn't have it
+    const shell = container.querySelector('.ceorl-shell') as HTMLElement
+    shell.scrollTo = vi.fn()
     const cols = container.querySelectorAll('.ceorl-column')
-    Object.defineProperty(cols[1], 'scrollIntoView', { value: vi.fn() })
+    Object.defineProperty(shell, 'clientWidth', { value: 1000 })
+    Object.defineProperty(cols[1], 'offsetLeft', { value: 800 })
+    Object.defineProperty(cols[1], 'offsetWidth', { value: 333, configurable: true })
+
     act(() => {
       ref.current?.focusColumn(1)
     })
+
+    expect(onIndexChange).not.toHaveBeenCalled()
+
+    Object.defineProperty(shell, 'scrollLeft', { value: 600, configurable: true })
+    Object.defineProperty(cols[0], 'offsetWidth', { value: 500 })
+    Object.defineProperty(cols[1], 'offsetWidth', { value: 500 })
+
+    shell.dispatchEvent(new Event('scroll'))
+    vi.advanceTimersByTime(300)
+
+    expect(onIndexChange).toHaveBeenCalledTimes(1)
     expect(onIndexChange).toHaveBeenCalledWith(1)
+
+    vi.useRealTimers()
   })
 
   it('user scroll triggers onIndexChange via settle', async () => {
@@ -244,10 +272,10 @@ describe('CeorlShell', () => {
     )
     const shell = container.querySelector('.ceorl-shell') as HTMLElement
 
-    // Simulate user scrolling to column 1
+    // 模拟用户滚动到第 2 列
     Object.defineProperty(shell, 'scrollLeft', { value: 600, configurable: true })
 
-    // Update column widths for computeIndex
+    // 更新列宽度供 computeIndex 计算
     const cols = shell.querySelectorAll('.ceorl-column')
     Object.defineProperty(cols[0], 'offsetWidth', { value: 500 })
     Object.defineProperty(cols[1], 'offsetWidth', { value: 500 })

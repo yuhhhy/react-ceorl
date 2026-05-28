@@ -22,11 +22,11 @@ CeorlShell SHALL accept the standard `style` prop (from `HTMLAttributes<HTMLDivE
 - **THEN** the rendered div SHALL have `width: 800px` and the default `100vw` SHALL NOT apply
 
 ### Requirement: No height: 100vh in CSS
-The `.ceorl-shell` CSS rule SHALL NOT include `height: 100vh`. The height SHALL be controlled exclusively via inline style defaults.
+The `.ceorl-shell` CSS rule SHALL NOT include `height`, `scroll-snap-type`, `scroll-snap-align`, or `scroll-behavior`. Dimensions SHALL be controlled exclusively via inline styles. Scroll behavior SHALL be controlled per-action via `scrollTo({ behavior })`.
 
-#### Scenario: CSS does not force viewport height
+#### Scenario: CSS does not set scroll-snap or scroll-behavior
 - **WHEN** inspecting the `.ceorl-shell` CSS rules
-- **THEN** `height` SHALL NOT be specified in the CSS file
+- **THEN** no `scroll-snap-type`, `scroll-behavior`, or `height` SHALL be specified
 
 ### Requirement: Column widths are percentage-based relative to shell
 The `WIDTH_MAP` constant SHALL map column width ratios to percentage strings relative to the shell container, not viewport units.

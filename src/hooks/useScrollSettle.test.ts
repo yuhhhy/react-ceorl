@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook } from '@testing-library/react'
-import { useScrollSnap } from './useScrollSnap'
+import { useScrollSettle } from './useScrollSettle'
 import type React from 'react'
 
 function createMockContainer() {
@@ -10,7 +10,7 @@ function createMockContainer() {
   return div
 }
 
-describe('useScrollSnap', () => {
+describe('useScrollSettle', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -19,7 +19,7 @@ describe('useScrollSnap', () => {
     const container = createMockContainer()
     const ref = { current: container }
 
-    renderHook(() => useScrollSnap(ref))
+    renderHook(() => useScrollSettle(ref))
 
     expect(container.addEventListener).toHaveBeenCalledWith(
       'scroll',
@@ -33,7 +33,7 @@ describe('useScrollSnap', () => {
     vi.spyOn(container, 'addEventListener')
     const ref = { current: container }
 
-    renderHook(() => useScrollSnap(ref))
+    renderHook(() => useScrollSettle(ref))
 
     expect(container.addEventListener).toHaveBeenCalledWith(
       'scrollend',
@@ -45,21 +45,13 @@ describe('useScrollSnap', () => {
     const container = createMockContainer()
     const ref = { current: container }
 
-    const { unmount } = renderHook(() => useScrollSnap(ref))
+    const { unmount } = renderHook(() => useScrollSettle(ref))
     unmount()
 
     expect(container.removeEventListener).toHaveBeenCalledWith(
       'scroll',
       expect.any(Function),
     )
-  })
-
-  it('returns activeIndex starting at 0', () => {
-    const container = createMockContainer()
-    const ref = { current: container }
-
-    const { result } = renderHook(() => useScrollSnap(ref))
-    expect(result.current.activeIndex).toBe(0)
   })
 
   it('calls onScrollSettle with index and seq on scroll settle', async () => {
@@ -78,7 +70,7 @@ describe('useScrollSnap', () => {
     const ref = { current: container } as React.RefObject<HTMLDivElement>
     const onScrollSettle = vi.fn()
 
-    renderHook(() => useScrollSnap(ref, { onScrollSettle }))
+    renderHook(() => useScrollSettle(ref, { onScrollSettle }))
 
     Object.defineProperty(container, 'scrollLeft', { value: 550, configurable: true })
 
@@ -96,7 +88,7 @@ describe('useScrollSnap', () => {
     const ref = { current: container } as React.RefObject<HTMLDivElement>
     const onScrollSettle = vi.fn()
 
-    renderHook(() => useScrollSnap(ref, { onScrollSettle }))
+    renderHook(() => useScrollSettle(ref, { onScrollSettle }))
 
     container.dispatchEvent(new Event('scroll'))
     vi.advanceTimersByTime(300)
@@ -108,15 +100,31 @@ describe('useScrollSnap', () => {
 
   it('does nothing when container ref is null', () => {
     const ref = { current: null }
-    const { result } = renderHook(() => useScrollSnap(ref))
-    expect(result.current.activeIndex).toBe(0)
+    expect(() => renderHook(() => useScrollSettle(ref))).not.toThrow()
   })
 
   it('handles container with no columns gracefully', () => {
     const container = createMockContainer()
     const ref = { current: container }
+    expect(() => renderHook(() => useScrollSettle(ref))).not.toThrow()
+  })
 
-    const { result } = renderHook(() => useScrollSnap(ref))
-    expect(result.current.activeIndex).toBe(0)
+  it('scrollend clears debounce timer and fires settle exactly once', () => {
+    vi.useFakeTimers()
+    const container = document.createElement('div')
+    const onScrollSettle = vi.fn()
+    const ref = { current: container } as React.RefObject<HTMLDivElement>
+
+    renderHook(() => useScrollSettle(ref, { onScrollSettle }))
+
+    container.dispatchEvent(new Event('scroll'))
+    container.dispatchEvent(new Event('scrollend'))
+
+    expect(onScrollSettle).toHaveBeenCalledTimes(1)
+
+    vi.advanceTimersByTime(300)
+    expect(onScrollSettle).toHaveBeenCalledTimes(1)
+
+    vi.useRealTimers()
   })
 })
