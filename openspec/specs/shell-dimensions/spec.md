@@ -22,11 +22,15 @@ CeorlShell SHALL accept the standard `style` prop (from `HTMLAttributes<HTMLDivE
 - **THEN** the rendered div SHALL have `width: 800px` and the default `100vw` SHALL NOT apply
 
 ### Requirement: No height: 100vh in CSS
-The `.ceorl-shell` CSS rule SHALL NOT include `height: 100vh`. The height SHALL be controlled exclusively via inline style defaults.
+The `.ceorl-shell` CSS rule SHALL NOT include `height: 100vh`. The height SHALL be controlled exclusively via inline style defaults. Additionally, the library CSS SHALL NOT set `height` or `overflow` on `html`, `body`, or `#root` — these are consumer-managed page-level concerns.
 
 #### Scenario: CSS does not force viewport height
 - **WHEN** inspecting the `.ceorl-shell` CSS rules
 - **THEN** `height` SHALL NOT be specified in the CSS file
+
+#### Scenario: CSS does not style html or body
+- **WHEN** inspecting the `ceorl.css` file
+- **THEN** no rule SHALL target `html`, `body`, `#root`, or similar global selectors
 
 ### Requirement: Column widths are percentage-based relative to shell
 The `WIDTH_MAP` constant SHALL map column width ratios to percentage strings relative to the shell container, not viewport units.

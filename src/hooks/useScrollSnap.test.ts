@@ -119,4 +119,23 @@ describe('useScrollSnap', () => {
     const { result } = renderHook(() => useScrollSnap(ref))
     expect(result.current.activeIndex).toBe(0)
   })
+
+  it('scrollend clears debounce timer and fires settle exactly once', () => {
+    vi.useFakeTimers()
+    const container = document.createElement('div')
+    const onScrollSettle = vi.fn()
+    const ref = { current: container } as React.RefObject<HTMLDivElement>
+
+    renderHook(() => useScrollSnap(ref, { onScrollSettle }))
+
+    container.dispatchEvent(new Event('scroll'))
+    container.dispatchEvent(new Event('scrollend'))
+
+    expect(onScrollSettle).toHaveBeenCalledTimes(1)
+
+    vi.advanceTimersByTime(300)
+    expect(onScrollSettle).toHaveBeenCalledTimes(1)
+
+    vi.useRealTimers()
+  })
 })

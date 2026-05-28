@@ -1,8 +1,5 @@
-# focus-scroll-stability Specification
+## MODIFIED Requirements
 
-## Purpose
-TBD - created by archiving change fix-focus-scroll-race. Update Purpose after archive.
-## Requirements
 ### Requirement: Programmatic focus change does not emit intermediate indices
 When `focusColumn` triggers a smooth scroll, the `onIndexChange` callback SHALL be called exactly once — with the final correct index after the scroll animation completes via the scroll settle path. No intermediate or immediate index SHALL be emitted before the scroll animation begins. The seq counter SHALL still guard against stale settle events.
 
@@ -35,4 +32,3 @@ CeorlColumn's `padding` prop SHALL default to `undefined`. When not specified, n
 #### Scenario: Explicit padding still works
 - **WHEN** CeorlColumn is rendered with `padding="8px"`
 - **THEN** `.ceorl-column-inner` SHALL have `style="padding: 8px"`
-

@@ -24,16 +24,14 @@ export function useKeyboardNav(
         e.preventDefault()
         if (onNavigateRef.current) {
           onNavigateRef.current('prev')
-        } else {
-          el.scrollBy({ left: -el.clientWidth, behavior: 'smooth' })
         }
+        el.scrollBy({ left: -el.clientWidth, behavior: 'smooth' })
       } else if (e.key === 'ArrowRight') {
         e.preventDefault()
         if (onNavigateRef.current) {
           onNavigateRef.current('next')
-        } else {
-          el.scrollBy({ left: el.clientWidth, behavior: 'smooth' })
         }
+        el.scrollBy({ left: el.clientWidth, behavior: 'smooth' })
       }
     }
 

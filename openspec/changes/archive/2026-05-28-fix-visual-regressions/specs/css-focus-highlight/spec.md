@@ -1,8 +1,14 @@
-# css-focus-highlight Specification
+## ADDED Requirements
 
-## Purpose
-TBD - created by archiving change focus-behavior-refinement. Update Purpose after archive.
-## Requirements
+### Requirement: Column has relative positioning for highlight context
+The `.ceorl-column` SHALL have `position: relative` so that the `::after` pseudo-element with `position: absolute` can position relative to the column.
+
+#### Scenario: Column has position relative
+- **WHEN** a CeorlColumn is rendered
+- **THEN** the column's computed `position` SHALL be `relative`
+
+## MODIFIED Requirements
+
 ### Requirement: Active column has default inset focus highlight
 The active CeorlColumn (`data-active="true"`) SHALL display a four-sided inset highlight that is always visible regardless of child element backgrounds. The highlight SHALL be implemented using a `::after` pseudo-element with `position: absolute; inset: 0; pointer-events: none` and `box-shadow: inset 0 0 0 2px var(--ceorl-focus-color)`. The base `.ceorl-column` SHALL have `position: relative` to provide a positioning context.
 
@@ -39,11 +45,3 @@ The focus highlight SHALL NOT change the column's box-model dimensions or cause 
 #### Scenario: Column width unchanged when active
 - **WHEN** a column becomes active and receives the highlight
 - **THEN** the column's `offsetWidth` SHALL remain unchanged
-
-### Requirement: Column has relative positioning for highlight context
-The `.ceorl-column` SHALL have `position: relative` so that the `::after` pseudo-element with `position: absolute` can position relative to the column.
-
-#### Scenario: Column has position relative
-- **WHEN** a CeorlColumn is rendered
-- **THEN** the column's computed `position` SHALL be `relative`
-

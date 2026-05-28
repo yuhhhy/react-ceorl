@@ -67,7 +67,7 @@ describe('useKeyboardNav', () => {
     expect(onNavigate).toHaveBeenCalledWith('prev')
   })
 
-  it('does not call scrollBy when onNavigate is provided', () => {
+  it('calls both onNavigate and scrollBy when onNavigate is provided', () => {
     const container = createMockContainer()
     const ref = { current: container }
     const onNavigate = vi.fn()
@@ -75,7 +75,11 @@ describe('useKeyboardNav', () => {
     renderHook(() => useKeyboardNav(ref, true, onNavigate))
 
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }))
-    expect(container.scrollBy).not.toHaveBeenCalled()
+    expect(onNavigate).toHaveBeenCalledWith('next')
+    expect(container.scrollBy).toHaveBeenCalledWith({
+      left: 1024,
+      behavior: 'smooth',
+    })
   })
 
   it('ignores non-arrow keys', () => {

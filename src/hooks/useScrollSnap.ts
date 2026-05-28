@@ -44,8 +44,13 @@ export function useScrollSnap(
       onScrollSettleRef.current?.(idx, seqRef.current)
     }
 
+    const handleScrollend = () => {
+      clearTimeout(scrollTimer)
+      handleSettle()
+    }
+
     if (supportsScrollend) {
-      el.addEventListener('scrollend', handleSettle)
+      el.addEventListener('scrollend', handleScrollend)
     }
 
     let scrollTimer: ReturnType<typeof setTimeout>
@@ -61,7 +66,7 @@ export function useScrollSnap(
 
     return () => {
       if (supportsScrollend) {
-        el.removeEventListener('scrollend', handleSettle)
+        el.removeEventListener('scrollend', handleScrollend)
       }
       el.removeEventListener('scroll', handleScroll)
       clearTimeout(scrollTimer)

@@ -88,16 +88,24 @@ describe('CeorlShell', () => {
     expect(() => ref.current?.focusColumn(999)).not.toThrow()
   })
 
+  it('renders children when value is 0 (falsy but valid React node)', () => {
+    render(<CeorlShell>{0}</CeorlShell>)
+    expect(document.querySelector('.ceorl-shell')).toBeInTheDocument()
+    expect(screen.getByText('0')).toBeInTheDocument()
+  })
+
   it('defaultActiveIndex sets initial active column', () => {
-    const ref = createRef<CeorlShellHandle>()
     render(
-      <CeorlShell ref={ref} defaultActiveIndex={0}>
+      <CeorlShell defaultActiveIndex={1}>
         <CeorlColumn>A</CeorlColumn>
         <CeorlColumn>B</CeorlColumn>
+        <CeorlColumn>C</CeorlColumn>
       </CeorlShell>,
     )
-    const cols = ref.current?.getColumns()
-    expect(cols).toHaveLength(2)
+    const cols = document.querySelectorAll('.ceorl-column')
+    expect(cols[0]).not.toHaveAttribute('data-active')
+    expect(cols[1]).toHaveAttribute('data-active', 'true')
+    expect(cols[2]).not.toHaveAttribute('data-active')
   })
 
   it('has default width 100vw and height 100vh as inline styles', () => {
@@ -141,6 +149,8 @@ describe('CeorlShell', () => {
         <CeorlColumn>B</CeorlColumn>
       </CeorlShell>,
     )
+    const shell = container.querySelector('.ceorl-shell') as HTMLElement
+    shell.scrollBy = vi.fn()
     const cols = container.querySelectorAll('.ceorl-column')
     const scrollIntoViewSpy = vi.fn()
     Object.defineProperty(cols[1], 'scrollIntoView', { value: scrollIntoViewSpy })
@@ -215,7 +225,8 @@ describe('CeorlShell', () => {
     })
   })
 
-  it('onIndexChange is called when focusColumn is invoked', () => {
+  it('onIndexChange is called once after scroll settle when focusColumn is invoked', () => {
+    vi.useFakeTimers()
     const onIndexChange = vi.fn()
     const ref = createRef<CeorlShellHandle>()
     const { container } = render(
@@ -224,13 +235,27 @@ describe('CeorlShell', () => {
         <CeorlColumn>B</CeorlColumn>
       </CeorlShell>,
     )
-    // Mock scrollIntoView since jsdom doesn't have it
     const cols = container.querySelectorAll('.ceorl-column')
     Object.defineProperty(cols[1], 'scrollIntoView', { value: vi.fn() })
+
     act(() => {
       ref.current?.focusColumn(1)
     })
+
+    expect(onIndexChange).not.toHaveBeenCalled()
+
+    const shell = container.querySelector('.ceorl-shell') as HTMLElement
+    Object.defineProperty(shell, 'scrollLeft', { value: 600, configurable: true })
+    Object.defineProperty(cols[0], 'offsetWidth', { value: 500 })
+    Object.defineProperty(cols[1], 'offsetWidth', { value: 500 })
+
+    shell.dispatchEvent(new Event('scroll'))
+    vi.advanceTimersByTime(300)
+
+    expect(onIndexChange).toHaveBeenCalledTimes(1)
     expect(onIndexChange).toHaveBeenCalledWith(1)
+
+    vi.useRealTimers()
   })
 
   it('user scroll triggers onIndexChange via settle', async () => {

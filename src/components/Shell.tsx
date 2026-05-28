@@ -72,11 +72,10 @@ export const CeorlShell = forwardRef<
       if (targetIndex >= cols.length) return
 
       focusSeqRef.current += 1
-      updateIndex(targetIndex)
       const col = cols[targetIndex] as HTMLElement
       col.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' })
     },
-    [updateIndex],
+    [],
   )
 
   const handleNavigate = useCallback(
@@ -122,7 +121,7 @@ export const CeorlShell = forwardRef<
         </CeorlColumn>
       ))
     }
-    if (!children) return null
+    if (Children.count(children) === 0) return null
     return Children.map(children, (child, i) => {
       if (typeof child === 'object' && child !== null && 'type' in child) {
         return cloneElement(child as ReactElement<{ 'data-active'?: string }>, {
