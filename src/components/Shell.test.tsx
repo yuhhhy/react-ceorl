@@ -62,6 +62,7 @@ describe('CeorlShell', () => {
     expect(ref.current).not.toBeNull()
     expect(typeof ref.current?.focusColumn).toBe('function')
     expect(typeof ref.current?.getColumns).toBe('function')
+    expect(ref.current?.scrollElement).toBeInstanceOf(HTMLDivElement)
   })
 
   it('exposes getColumns via ref handle', () => {

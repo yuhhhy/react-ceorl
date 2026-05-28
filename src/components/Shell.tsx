@@ -112,6 +112,7 @@ export const CeorlShell = forwardRef<
         doFocus(index)
       },
       getColumns,
+      get scrollElement() { return containerRef.current },
     }),
     [getColumns, doFocus],
   )
