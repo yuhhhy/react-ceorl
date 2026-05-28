@@ -104,6 +104,7 @@ export default function App() {
     });
   }, [activeIndex]);
 
+  // 键盘导航 — 始终拦截方向键阻止原生滚动，keyboardNav 为 true 时执行导航
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;

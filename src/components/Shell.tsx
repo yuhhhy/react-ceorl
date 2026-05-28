@@ -13,6 +13,13 @@ import type { CeorlShellHandle, CeorlShellProps } from './types'
 import { CeorlColumn } from './Column'
 import { useScrollSettle } from '../hooks/useScrollSettle'
 
+/**
+ * CeorlShell — 顶层横向滚动容器
+ *
+ * 受控/非受控双模式：传 activeIndex 为受控模式，传 defaultActiveIndex 为非受控。
+ * columns prop 与 children 二选一，columns 优先。
+ * 通过 ref 暴露 focusColumn（最小滚动聚焦）和 getColumns（DOM 查询）。
+ */
 export const CeorlShell = forwardRef<
   CeorlShellHandle,
   CeorlShellProps & HTMLAttributes<HTMLDivElement>
@@ -35,6 +42,7 @@ export const CeorlShell = forwardRef<
   const [internalIndex, setInternalIndex] = useState(defaultActiveIndex)
   const activeIndex = controlledIndex ?? internalIndex
 
+  // 序列计数器，每次 doFocus 自增，用于丢弃过时的滚动停稳回调
   const focusSeqRef = useRef(0)
 
   const updateIndex = useCallback(
@@ -49,6 +57,7 @@ export const CeorlShell = forwardRef<
     [isControlled, onIndexChange],
   )
 
+  // 滚动停稳回调 — 只接受当前序列号之后的回调，防止 focusColumn 快速调用产生过时事件
   const handleScrollSettle = useCallback(
     (index: number, seq: number) => {
       if (seq < focusSeqRef.current) return
@@ -60,6 +69,8 @@ export const CeorlShell = forwardRef<
   useScrollSettle(containerRef, { onScrollSettle: handleScrollSettle })
 
   // 只有稳定 ref（containerRef、focusSeqRef），省略 deps 安全
+  // L/R 双面吸附：L=右吸附面（列右边缘对齐视口右边缘），R=左吸附面（列左边缘对齐视口左边缘）
+  // 选离当前位置更近的面，实现最小滚动
   const doFocus = useCallback(
     (targetIndex: number) => {
       const container = containerRef.current
