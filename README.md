@@ -63,7 +63,7 @@ Props：
 
 | Prop | 类型 | 默认 | 说明 |
 |------|------|------|------|
-| `width` | `'1/2' \| '1/3' \| '1/4'` | `'1/3'` | 列宽度 |
+| `width` | `number \| string` | `1/3` | 列宽度（number: 比例 0~1；string: 分数 `"a/b"` 或 CSS width 值） |
 | `padding` | `string` | — | CSS padding 值 |
 
 ### CeorlStack
@@ -75,10 +75,26 @@ Props：
 ```ts
 interface ColumnDescriptor {
   id: string
-  width?: '1/2' | '1/3' | '1/4'
+  width?: number | string  // number(0~1) | "a/b" | CSS width
   content: ReactNode
 }
 ```
+
+### resolveColumnWidth
+
+将任意 `ColumnWidth` 值解析为 CSS width 字符串的纯函数：
+
+```ts
+import { resolveColumnWidth } from 'ceorl'
+
+resolveColumnWidth(0.5)            // "50%"
+resolveColumnWidth('1/3')          // "33.333%"
+resolveColumnWidth('320px')        // "320px"
+```
+
+- `number`（`0 < n ≤ 1`）→ `"n * 100%"`，超出范围 fallback 到 `"33.333%"`
+- `"a/b"` → `"(a/b) * 100%"`，分子 > 分母或分母 = 0 时 fallback
+- 其他字符串 → 浏览器环境用 `CSS.supports("width", value)` 校验，不通过则 fallback
 
 ### scrollToColumn
 
@@ -159,7 +175,7 @@ export default function App() {
 
 ```bash
 pnpm dev        # 启动
-pnpm test       # 测试（30 个）
+pnpm test       # 测试（39 个）
 pnpm typecheck  # 类型检查
 pnpm build      # 构建
 ```
