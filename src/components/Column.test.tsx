@@ -1,27 +1,59 @@
 import { describe, it, expect } from 'vitest'
 import { render } from '@testing-library/react'
 import { CeorlColumn } from './Column'
+import type { ColumnWidth } from './types'
+
+function renderColumn(width?: ColumnWidth) {
+  const { container } = render(<CeorlColumn width={width}>Content</CeorlColumn>)
+  return container.querySelector('.ceorl-column') as HTMLElement
+}
 
 describe('CeorlColumn', () => {
-  it('renders with default width 1/3', () => {
+  it('renders with default width', () => {
     const { container } = render(<CeorlColumn>Content</CeorlColumn>)
     const col = container.querySelector('.ceorl-column')
-    expect(col).toHaveAttribute('data-width', '1/3')
     expect(col).toHaveStyle({ width: '33.333%' })
   })
 
-  it('renders with explicit width 1/2', () => {
-    const { container } = render(<CeorlColumn width="1/2">Content</CeorlColumn>)
-    const col = container.querySelector('.ceorl-column')
-    expect(col).toHaveAttribute('data-width', '1/2')
-    expect(col).toHaveStyle({ width: '50%' })
+  it.each([
+    [0.5, '50%'],
+    [1, '100%'],
+    [0.33, '33%'],
+    [0, '33.333%'],
+    [-1, '33.333%'],
+    [2, '33.333%'],
+    [Number.NaN, '33.333%'],
+  ])('resolves numeric width %s to %s', (width, expected) => {
+    const col = renderColumn(width)
+    expect(col).toHaveStyle({ width: expected })
   })
 
-  it('renders with explicit width 1/4', () => {
-    const { container } = render(<CeorlColumn width="1/4">Content</CeorlColumn>)
-    const col = container.querySelector('.ceorl-column')
-    expect(col).toHaveAttribute('data-width', '1/4')
-    expect(col).toHaveStyle({ width: '25%' })
+  it.each([
+    ['1/2', '50%'],
+    ['1/3', '33.333%'],
+    ['2/3', '66.667%'],
+    ['3/4', '75%'],
+    ['1/8', '12.5%'],
+  ])('resolves fraction width %s to %s', (width, expected) => {
+    const col = renderColumn(width)
+    expect(col).toHaveStyle({ width: expected })
+  })
+
+  it.each([
+    ['1/0', '33.333%'],
+    ['3/2', '33.333%'],
+  ])('falls back for invalid fraction width %s', (width, expected) => {
+    const col = renderColumn(width)
+    expect(col).toHaveStyle({ width: expected })
+  })
+
+  it.each([
+    ['320px', '320px'],
+    ['40%', '40%'],
+    ['', '33.333%'],
+  ])('resolves CSS string width %s to %s', (width, expected) => {
+    const col = renderColumn(width)
+    expect(col).toHaveStyle({ width: expected })
   })
 
   it('renders children inside .ceorl-column-inner', () => {

@@ -23,7 +23,7 @@ describe('CeorlShell', () => {
       <CeorlShell
         columns={[
           { id: 'a', content: 'Column A' },
-          { id: 'b', content: 'Column B', width: '1/2' },
+          { id: 'b', content: 'Column B', width: 0.5 },
         ]}
       />,
     )
@@ -31,7 +31,7 @@ describe('CeorlShell', () => {
     expect(screen.getByText('Column B')).toBeInTheDocument()
     const cols = document.querySelectorAll('.ceorl-column')
     expect(cols).toHaveLength(2)
-    expect(cols[1]).toHaveAttribute('data-width', '1/2')
+    expect(cols[1]).toHaveStyle({ width: '50%' })
   })
 
   it('columns prop takes precedence over children', () => {

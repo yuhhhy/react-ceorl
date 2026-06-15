@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 
-/** 标准宽度档位 */
-export type ColumnWidth = '1/2' | '1/3' | '1/4'
+/** Column width value. Numbers are fractions in the range (0, 1]. */
+export type ColumnWidth = number | string
 
 export interface ColumnDescriptor {
   id: string
@@ -21,7 +21,7 @@ export interface CeorlShellProps {
 }
 
 export interface CeorlColumnProps {
-  /** 列宽度档位 */
+  /** 列宽度 */
   width?: ColumnWidth
   children?: ReactNode
   /** 列内边距 (CSS padding 值) */
@@ -30,11 +30,4 @@ export interface CeorlColumnProps {
 
 export interface CeorlStackProps {
   children?: ReactNode
-}
-
-/** 宽度档位到 CSS 值的映射 */
-export const WIDTH_MAP: Record<ColumnWidth, string> = {
-  '1/2': '50%',
-  '1/3': '33.333%',
-  '1/4': '25%',
 }

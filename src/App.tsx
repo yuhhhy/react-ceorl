@@ -14,7 +14,7 @@ const PANEL_COLORS = [
   "#774936",
 ];
 
-const WIDTH_OPTIONS: ColumnWidth[] = ["1/2", "1/3", "1/4"];
+const WIDTH_OPTIONS: ColumnWidth[] = [0.5, 1 / 3, 0.25];
 
 function DemoPanel({
   title,
@@ -23,7 +23,7 @@ function DemoPanel({
 }: {
   title: string;
   color: string;
-  width: string;
+  width: ColumnWidth;
 }) {
   return (
     <div
@@ -38,7 +38,7 @@ function DemoPanel({
       }}
     >
       <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>{title}</h2>
-      <p style={{ margin: 0, fontSize: 14, opacity: 0.7 }}>Width: {width}</p>
+      <p style={{ margin: 0, fontSize: 14, opacity: 0.7 }}>Width: {String(width)}</p>
     </div>
   );
 }
@@ -51,23 +51,23 @@ export default function App() {
   const [columns, setColumns] = useState<ColumnDescriptor[]>(() => [
     {
       id: "col-0",
-      width: "1/2",
+      width: 0.5,
       content: (
-        <DemoPanel title="Panel 1" color={PANEL_COLORS[0]} width="1/2" />
+        <DemoPanel title="Panel 1" color={PANEL_COLORS[0]} width={0.5} />
       ),
     },
     {
       id: "col-1",
-      width: "1/3",
+      width: 1 / 3,
       content: (
-        <DemoPanel title="Panel 2" color={PANEL_COLORS[1]} width="1/3" />
+        <DemoPanel title="Panel 2" color={PANEL_COLORS[1]} width={1 / 3} />
       ),
     },
     {
       id: "col-2",
-      width: "1/4",
+      width: 0.25,
       content: (
-        <DemoPanel title="Panel 3" color={PANEL_COLORS[2]} width="1/4" />
+        <DemoPanel title="Panel 3" color={PANEL_COLORS[2]} width={0.25} />
       ),
     },
   ]);
