@@ -1,5 +1,6 @@
 import type { HTMLAttributes } from 'react'
 import type { CeorlStackProps } from './types'
+import { cn } from '../cn'
 
 /**
  * CeorlStack — 列内堆叠容器
@@ -12,7 +13,7 @@ export function CeorlStack({
   ...props
 }: CeorlStackProps & HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className="ceorl-stack" {...props}>
+    <div {...props} className={cn('ceorl-stack', props.className)}>
       {children}
     </div>
   )

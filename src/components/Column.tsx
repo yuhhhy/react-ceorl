@@ -1,6 +1,7 @@
 import type { HTMLAttributes } from 'react'
 import type { CeorlColumnProps } from './types'
 import { resolveColumnWidth } from '../resolveColumnWidth'
+import { cn } from '../cn'
 
 /**
  * CeorlColumn — 单列容器
@@ -17,9 +18,9 @@ export function CeorlColumn({
 }: CeorlColumnProps & HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className="ceorl-column"
-      style={{ ...style, width: resolveColumnWidth(width) }}
       {...props}
+      className={cn('ceorl-column', props.className)}
+      style={{ ...style, width: resolveColumnWidth(width) }}
     >
       <div className="ceorl-column-inner" style={padding != null ? { padding } : undefined}>
         {children}

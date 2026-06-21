@@ -10,6 +10,7 @@ import {
 import type { CeorlShellHandle, CeorlShellProps } from './types'
 import { CeorlColumn } from './Column'
 import { scrollToColumn } from '../scrollToColumn'
+import { cn } from '../cn'
 
 /**
  * CeorlShell — 纯受控横向滚动列布局容器
@@ -25,7 +26,7 @@ export const CeorlShell = forwardRef<
     children,
     activeIndex = 0,
     columns,
-    className = '',
+    className,
     style,
     ...props
   },
@@ -71,14 +72,14 @@ export const CeorlShell = forwardRef<
 
   return (
     <div
+      {...props}
       ref={containerRef}
-      className={`ceorl-shell${className ? ' ' + className : ''}`}
+      className={cn('ceorl-shell', className)}
       style={{
         width: '100%',
         height: '100%',
         ...style,
       }}
-      {...props}
     >
       {renderColumns()}
     </div>
