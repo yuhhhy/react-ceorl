@@ -1,51 +1,21 @@
 {
-  "name": "ceorl",
-  "version": "0.0.0",
+  "name": "react-ceorl-workspace",
+  "private": true,
   "type": "module",
-  "main": "./dist/ceorl.cjs",
-  "module": "./dist/ceorl.mjs",
-  "types": "./dist/packages/ceorl/src/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/ceorl.mjs",
-      "require": "./dist/ceorl.cjs",
-      "types": "./dist/packages/ceorl/src/index.d.ts"
-    }
-  },
-  "files": ["dist"],
   "scripts": {
-    "dev": "vite",
-    "build": "tsgo -config tsconfig.app.json && vite build",
-    "typecheck": "tsgo -config tsconfig.app.json",
-    "lint": "eslint .",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "preview": "vite preview"
-  },
-  "peerDependencies": {
-    "react": ">=18",
-    "react-dom": ">=18"
+    "build": "pnpm --filter ceorl build",
+    "dev": "pnpm --filter example-basic dev",
+    "test": "pnpm --filter ceorl test",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "eslint ."
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@rslint/tsgo": "^0.5.3",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.2",
-    "@types/node": "^24.12.3",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.1",
     "eslint": "^10.3.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.6.0",
-    "jsdom": "^29.1.1",
-    "react": "^19.2.6",
-    "react-dom": "^19.2.6",
-    "typescript": "~6.0.2",
     "typescript-eslint": "^8.59.2",
-    "vite": "^8.0.12",
-    "vite-plugin-dts": "^5.0.2",
     "vitest": "^4.1.7"
   }
 }
