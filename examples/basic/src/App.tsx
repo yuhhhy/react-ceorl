@@ -3,7 +3,7 @@ import { CeorlShell } from "ceorl";
 import type { ColumnDescriptor } from "ceorl";
 import type { CeorlShellHandle } from "ceorl";
 import { DemoPanel } from "./components/DemoPanel";
-import { PANEL_COLORS, WIDTH_OPTIONS } from "./components/constants";
+import { WIDTH_OPTIONS } from "./components/constants";
 import { Toolbar } from "./components/Toolbar";
 
 export default function App() {
@@ -12,21 +12,9 @@ export default function App() {
   const [keyboardNav, setKeyboardNav] = useState(true);
 
   const [columns, setColumns] = useState<ColumnDescriptor[]>(() => [
-    {
-      id: "col-0",
-      width: 0.5,
-      content: <DemoPanel title="Panel 1" color={PANEL_COLORS[0]} width={0.5} />,
-    },
-    {
-      id: "col-1",
-      width: 1 / 3,
-      content: <DemoPanel title="Panel 2" color={PANEL_COLORS[1]} width={1 / 3} />,
-    },
-    {
-      id: "col-2",
-      width: 0.25,
-      content: <DemoPanel title="Panel 3" color={PANEL_COLORS[2]} width={0.25} />,
-    },
+    { id: "col-0", width: 0.5,   content: <DemoPanel title="terminal" index={0} width={0.5} /> },
+    { id: "col-1", width: 1 / 3, content: <DemoPanel title="git"      index={1} width={1 / 3} /> },
+    { id: "col-2", width: 0.25,  content: <DemoPanel title="htop"     index={2} width={0.25} /> },
   ]);
 
   const addColumn = useCallback(() => {
@@ -38,13 +26,7 @@ export default function App() {
         {
           id: `col-${Date.now()}`,
           width,
-          content: (
-            <DemoPanel
-              title={`Panel ${idx + 1}`}
-              color={PANEL_COLORS[idx % PANEL_COLORS.length]}
-              width={width}
-            />
-          ),
+          content: <DemoPanel title={`terminal ${idx + 1}`} index={idx} width={width} />,
         },
       ];
     });
@@ -87,7 +69,7 @@ export default function App() {
   }, [activeIndex]);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100vh", backgroundImage: "url(https://picsum.photos/1920/1080)", backgroundSize: "cover", backgroundPosition: "center" }}>
       <Toolbar
         activeIndex={activeIndex}
         totalColumns={columns.length}
@@ -102,6 +84,7 @@ export default function App() {
         ref={shellRef}
         inset={4}
         radius={10}
+        columnBg="rgba(19, 19, 19, 0.8)"
         columns={columns}
         activeIndex={activeIndex}
         style={{ flex: 1, width: "100%" }}
