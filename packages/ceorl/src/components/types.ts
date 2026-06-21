@@ -18,6 +18,7 @@ export interface CeorlShellProps {
   activeIndex?: number
   columns?: readonly ColumnDescriptor[]
   inset?: string | number
+  radius?: string | number
 }
 
 export interface CeorlColumnProps {

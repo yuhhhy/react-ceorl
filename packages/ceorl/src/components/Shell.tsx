@@ -2,6 +2,7 @@ import {
   forwardRef,
   useImperativeHandle,
   useRef,
+  type CSSProperties,
   type HTMLAttributes,
 } from 'react'
 import type { CeorlShellHandle, CeorlShellProps } from './types'
@@ -23,6 +24,7 @@ export const CeorlShell = forwardRef<
     activeIndex = 0,
     columns,
     inset,
+    radius,
     className,
     style,
     ...props
@@ -54,8 +56,9 @@ export const CeorlShell = forwardRef<
         height: '100%',
         gap: typeof inset === 'number' ? `${inset}px` : inset,
         padding: typeof inset === 'number' ? `${inset}px` : inset,
+        '--ceorl-radius': typeof radius === 'number' ? `${radius}px` : radius,
         ...style,
-      }}
+      } as CSSProperties}
     >
       {columns?.map((col, i) => (
         <CeorlColumn

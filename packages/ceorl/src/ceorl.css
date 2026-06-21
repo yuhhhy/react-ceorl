@@ -13,6 +13,7 @@
 :root {
   --ceorl-focus-color: #66ccff;
   --ceorl-focus-width: 2px;
+  --ceorl-radius: 0px;
 }
 
 /* --- 列容器 --- */
@@ -22,6 +23,7 @@
   overflow-y: auto;
   box-sizing: border-box;
   position: relative;
+  border-radius: var(--ceorl-radius);
 }
 
 .ceorl-column-inner {
@@ -34,6 +36,7 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
+  border-radius: var(--ceorl-radius);
   box-shadow: inset 0 0 0 var(--ceorl-focus-width) var(--ceorl-focus-color);
 }
 
