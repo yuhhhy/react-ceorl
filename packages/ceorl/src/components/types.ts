@@ -15,7 +15,6 @@ export interface CeorlShellHandle {
 }
 
 export interface CeorlShellProps {
-  children?: ReactNode
   activeIndex?: number
   columns?: readonly ColumnDescriptor[]
 }

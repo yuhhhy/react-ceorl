@@ -1,11 +1,8 @@
 import {
-  Children,
-  cloneElement,
   forwardRef,
   useImperativeHandle,
   useRef,
   type HTMLAttributes,
-  type ReactElement,
 } from 'react'
 import type { CeorlShellHandle, CeorlShellProps } from './types'
 import { CeorlColumn } from './Column'
@@ -23,7 +20,6 @@ export const CeorlShell = forwardRef<
   CeorlShellProps & HTMLAttributes<HTMLDivElement>
 >(function CeorlShell(
   {
-    children,
     activeIndex = 0,
     columns,
     className,
@@ -47,29 +43,6 @@ export const CeorlShell = forwardRef<
     [],
   )
 
-  const renderColumns = () => {
-    if (columns) {
-      return columns.map((col, i) => (
-        <CeorlColumn
-          key={col.id}
-          width={col.width}
-          data-active={i === activeIndex ? 'true' : undefined}
-        >
-          {col.content}
-        </CeorlColumn>
-      ))
-    }
-    if (Children.count(children) === 0) return null
-    return Children.map(children, (child, i) => {
-      if (typeof child === 'object' && child !== null && 'type' in child) {
-        return cloneElement(child as ReactElement<{ 'data-active'?: string }>, {
-          'data-active': i === activeIndex ? 'true' : undefined,
-        })
-      }
-      return child
-    })
-  }
-
   return (
     <div
       {...props}
@@ -81,7 +54,15 @@ export const CeorlShell = forwardRef<
         ...style,
       }}
     >
-      {renderColumns()}
+      {columns?.map((col, i) => (
+        <CeorlColumn
+          key={col.id}
+          width={col.width}
+          data-active={i === activeIndex ? 'true' : undefined}
+        >
+          {col.content}
+        </CeorlColumn>
+      ))}
     </div>
   )
 })
