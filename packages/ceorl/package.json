@@ -10,7 +10,8 @@
       "import": "./dist/ceorl.mjs",
       "require": "./dist/ceorl.cjs",
       "types": "./dist/src/index.d.ts"
-    }
+    },
+    "./style.css": "./dist/style.css"
   },
   "files": ["dist"],
   "scripts": {
