@@ -12,11 +12,13 @@
     "test:watch": "vitest",
     "preview": "vite preview"
   },
-  "dependencies": {
-    "react": "^19.2.6",
-    "react-dom": "^19.2.6"
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
   },
   "devDependencies": {
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
     "@eslint/js": "^10.0.1",
     "@rslint/tsgo": "^0.5.3",
     "@testing-library/jest-dom": "^6.9.1",
