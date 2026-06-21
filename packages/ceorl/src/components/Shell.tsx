@@ -25,6 +25,7 @@ export const CeorlShell = forwardRef<
     columns,
     inset,
     radius,
+    columnBg,
     className,
     style,
     ...props
@@ -57,6 +58,7 @@ export const CeorlShell = forwardRef<
         gap: typeof inset === 'number' ? `${inset}px` : inset,
         padding: typeof inset === 'number' ? `${inset}px` : inset,
         '--ceorl-radius': typeof radius === 'number' ? `${radius}px` : radius,
+        '--ceorl-column-bg': columnBg,
         ...style,
       } as CSSProperties}
     >
@@ -64,6 +66,7 @@ export const CeorlShell = forwardRef<
         <CeorlColumn
           key={col.id}
           width={col.width}
+          style={col.style}
           data-active={i === activeIndex ? 'true' : undefined}
         >
           {col.content}

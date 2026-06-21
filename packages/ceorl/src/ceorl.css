@@ -14,6 +14,7 @@
   --ceorl-focus-color: #66ccff;
   --ceorl-focus-width: 2px;
   --ceorl-radius: 0px;
+  --ceorl-column-bg: transparent;
 }
 
 /* --- 列容器 --- */
@@ -24,6 +25,7 @@
   box-sizing: border-box;
   position: relative;
   border-radius: var(--ceorl-radius);
+  background: var(--ceorl-column-bg);
 }
 
 .ceorl-column-inner {

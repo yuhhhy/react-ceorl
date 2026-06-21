@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 
 /** Column width value. Numbers are fractions in the range (0, 1]. */
 export type ColumnWidth = number | string
@@ -6,6 +6,7 @@ export type ColumnWidth = number | string
 export interface ColumnDescriptor {
   id: string
   width?: ColumnWidth
+  style?: CSSProperties
   content: ReactNode
 }
 
@@ -19,6 +20,7 @@ export interface CeorlShellProps {
   columns?: readonly ColumnDescriptor[]
   inset?: string | number
   radius?: string | number
+  columnBg?: string
 }
 
 export interface CeorlColumnProps {
