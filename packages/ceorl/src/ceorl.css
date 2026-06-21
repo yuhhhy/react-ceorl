@@ -10,11 +10,9 @@
   box-sizing: border-box;
 }
 
-:root {
+.ceorl-shell {
   --ceorl-focus-color: #66ccff;
   --ceorl-focus-width: 2px;
-  --ceorl-radius: 0px;
-  --ceorl-column-bg: transparent;
 }
 
 /* --- 列容器 --- */
@@ -24,8 +22,8 @@
   overflow-y: auto;
   box-sizing: border-box;
   position: relative;
-  border-radius: var(--ceorl-radius);
-  background: var(--ceorl-column-bg);
+  border-radius: var(--ceorl-radius, 0px);
+  background: var(--ceorl-column-bg, transparent);
 }
 
 .ceorl-column-inner {
@@ -38,7 +36,7 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  border-radius: var(--ceorl-radius);
+  border-radius: var(--ceorl-radius, 0px);
   box-shadow: inset 0 0 0 var(--ceorl-focus-width) var(--ceorl-focus-color);
 }
 
