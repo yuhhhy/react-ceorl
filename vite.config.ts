@@ -8,13 +8,17 @@ export default defineConfig({
     react(),
     dts({
       tsconfigPath: './tsconfig.app.json',
-      include: ['src'],
-      exclude: ['src/App.tsx', 'src/main.tsx'],
+      include: ['packages/ceorl/src'],
     }),
   ],
+  resolve: {
+    alias: {
+      ceorl: resolve(__dirname, 'packages/ceorl/src/index.ts'),
+    },
+  },
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.ts'),
+      entry: resolve(__dirname, 'packages/ceorl/src/index.ts'),
       formats: ['es', 'cjs'],
       fileName: (format) => `ceorl.${format === 'es' ? 'mjs' : 'cjs'}`,
     },

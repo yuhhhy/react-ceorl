@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { CeorlShell } from "./index";
-import type { ColumnDescriptor, ColumnWidth } from "./index";
-import type { CeorlShellHandle } from "./index";
+import { CeorlShell } from "ceorl";
+import type { ColumnDescriptor, ColumnWidth } from "ceorl";
+import type { CeorlShellHandle } from "ceorl";
 
 const PANEL_COLORS = [
   "#1a1a2e",

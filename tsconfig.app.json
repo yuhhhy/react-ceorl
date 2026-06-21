@@ -19,7 +19,11 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    "paths": {
+      "ceorl": ["./packages/ceorl/src/index.ts"]
+    }
   },
-  "include": ["src"]
+  "include": ["packages/ceorl/src", "examples/basic/src"]
 }

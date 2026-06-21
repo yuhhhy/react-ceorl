@@ -81,15 +81,15 @@ describe('CeorlShell', () => {
     expect(screen.getByText('0')).toBeInTheDocument()
   })
 
-  it('has default width 100vw and height 100vh as inline styles', () => {
+  it('has default width 100% and height 100% as inline styles', () => {
     const { container } = render(
       <CeorlShell>
         <CeorlColumn>Test</CeorlColumn>
       </CeorlShell>,
     )
     const shell = container.querySelector('.ceorl-shell') as HTMLElement
-    expect(shell.style.width).toBe('100vw')
-    expect(shell.style.height).toBe('100vh')
+    expect(shell.style.width).toBe('100%')
+    expect(shell.style.height).toBe('100%')
   })
 
   it('consumer style overrides default dimensions', () => {
