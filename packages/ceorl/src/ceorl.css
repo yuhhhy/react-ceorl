@@ -7,6 +7,7 @@
 .ceorl-shell {
   display: flex;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 :root {

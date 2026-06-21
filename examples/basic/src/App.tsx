@@ -100,6 +100,7 @@ export default function App() {
       />
       <CeorlShell
         ref={shellRef}
+        inset={4}
         columns={columns}
         activeIndex={activeIndex}
         style={{ flex: 1, width: "100%" }}

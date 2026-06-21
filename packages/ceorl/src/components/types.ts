@@ -17,6 +17,7 @@ export interface CeorlShellHandle {
 export interface CeorlShellProps {
   activeIndex?: number
   columns?: readonly ColumnDescriptor[]
+  inset?: string | number
 }
 
 export interface CeorlColumnProps {

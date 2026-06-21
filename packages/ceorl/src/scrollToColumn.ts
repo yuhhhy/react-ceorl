@@ -17,15 +17,19 @@ export function scrollToColumn(
   if (index < 0 || index >= cols.length) return
 
   const col = cols[index]
+  const style = getComputedStyle(container)
+  const paddingLeft = parseFloat(style.paddingLeft) || 0
+  const paddingRight = parseFloat(style.paddingRight) || 0
+
   const viewLeft = container.scrollLeft
   const viewRight = viewLeft + container.clientWidth
   const colLeft = col.offsetLeft
   const colRight = colLeft + col.offsetWidth
 
-  if (colLeft >= viewLeft && colRight <= viewRight) return
+  if (colLeft - paddingLeft >= viewLeft && colRight + paddingRight <= viewRight) return
 
-  const L = Math.max(0, colRight - container.clientWidth)
-  const R = colLeft
+  const L = Math.max(0, colRight + paddingRight - container.clientWidth)
+  const R = Math.max(0, colLeft - paddingLeft)
 
   const target = Math.abs(container.scrollLeft - L) <= Math.abs(container.scrollLeft - R) ? L : R
 

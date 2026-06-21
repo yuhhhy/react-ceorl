@@ -22,6 +22,7 @@ export const CeorlShell = forwardRef<
   {
     activeIndex = 0,
     columns,
+    inset,
     className,
     style,
     ...props
@@ -51,6 +52,8 @@ export const CeorlShell = forwardRef<
       style={{
         width: '100%',
         height: '100%',
+        gap: typeof inset === 'number' ? `${inset}px` : inset,
+        padding: typeof inset === 'number' ? `${inset}px` : inset,
         ...style,
       }}
     >
