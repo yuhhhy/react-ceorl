@@ -9,6 +9,11 @@
   overflow: hidden;
 }
 
+:root {
+  --ceorl-focus-color: #66ccff;
+  --ceorl-focus-width: 2px;
+}
+
 /* --- 列容器 --- */
 .ceorl-column {
   flex-shrink: 0;
@@ -16,7 +21,6 @@
   overflow-y: auto;
   box-sizing: border-box;
   position: relative;
---ceorl-focus-color: #66ccff;
 }
 
 .ceorl-column-inner {
@@ -29,7 +33,7 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  box-shadow: inset 0 0 0 2px var(--ceorl-focus-color);
+  box-shadow: inset 0 0 0 var(--ceorl-focus-width) var(--ceorl-focus-color);
 }
 
 /* --- 堆叠容器 --- */
